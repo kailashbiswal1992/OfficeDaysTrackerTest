@@ -597,7 +597,7 @@ html,body{overflow-x:hidden}
 
 <input type="file" id="fileInput" accept=".json">
 <div class="toast" id="toast" role="status"></div>
-<div class="build-watermark">Build v26.10.02.2XTEST</div>
+<div class="build-watermark">Build v26.10.02.3TEST</div>
 
 <script>
 firebase.initializeApp(firebaseConfig);
@@ -722,13 +722,29 @@ function stopOfficeLocationWatch(){
   }
 }
 
+let lastOfficeLocationNoticeAt=0;
 function startOfficeLocationWatch(){
-  if(!autoOfficeEnabled||!officeLocation||!auth.currentUser||document.hidden||!navigator.geolocation||officeLocationWatchId!==null)return;
-  const options={enableHighAccuracy:true,timeout:20000,maximumAge:0};
+  if(!autoOfficeEnabled||!officeLocation||!auth.currentUser||document.hidden||officeLocationWatchId!==null)return;
+  if(!window.isSecureContext){
+    showToast("Automatic location needs a secure HTTPS connection");
+    return;
+  }
+  if(!navigator.geolocation){
+    showToast("This browser does not provide location access");
+    return;
+  }
+  const options={enableHighAccuracy:true,timeout:60000,maximumAge:0};
   const checkPosition=position=>{
     if(!officeLocation||!auth.currentUser)return;
     const distance=distanceInMeters(position.coords.latitude,position.coords.longitude,officeLocation.latitude,officeLocation.longitude);
-    if(distance>officeLocation.radius)return;
+    if(distance>officeLocation.radius){
+      const now=Date.now();
+      if(now-lastOfficeLocationNoticeAt>30000){
+        lastOfficeLocationNoticeAt=now;
+        showToast(`Location found, but ${Math.round(distance)} m from office (radius: ${officeLocation.radius} m)`);
+      }
+      return;
+    }
     const today=key(new Date());
     if(isOfficeDay(data[today]))return;
     rememberData();
@@ -738,12 +754,14 @@ function startOfficeLocationWatch(){
     showToast("You’re within the office radius — today marked as an office day");
   };
   const handleError=error=>{
-    stopOfficeLocationWatch();
-    const message=error.code===1?"Location permission was denied":error.code===2?"Your location could not be determined":"Location check timed out";
-    showToast(`Automatic office marking unavailable: ${message}`);
+    if(error.code===1){
+      stopOfficeLocationWatch();
+      showToast("Location permission was denied. Allow location access and enable automatic marking again.");
+      return;
+    }
+    const message=error.code===2?"Your location is temporarily unavailable":"Location check timed out; still waiting for a location fix";
+    showToast(`Automatic office marking: ${message}`);
   };
-  // Check once immediately, then keep watching for the device entering the radius.
-  navigator.geolocation.getCurrentPosition(checkPosition,handleError,options);
   officeLocationWatchId=navigator.geolocation.watchPosition(checkPosition,handleError,options);
 }
 
