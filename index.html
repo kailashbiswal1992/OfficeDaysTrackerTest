@@ -119,8 +119,6 @@ body.dark-mode .day.weekend .num{color:#718096}
 .day .tag svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .day.home{background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);border-color:#9333ea;box-shadow:0 2px 8px rgba(147,51,234,.15)}
 body.dark-mode .day.home{background:linear-gradient(135deg,#342347 0%,#2a203a 100%)}
-.day .tag.home-tag{color:#9333ea;background:#f3e8ff}
-body.dark-mode .day .tag.home-tag{color:#c084fc;background:rgba(192,132,252,.2)}
 body.dark-mode .day .tag{color:#60a5fa;background:rgba(96,165,250,0.2)}
 .note{margin-top:16px;font-size:13px;color:#64748b;padding:12px;background:#f8fafc;border-left:3px solid #0066cc;border-radius:6px;transition:all 0.3s}
 body.dark-mode .note{background:#2d3748;color:#cbd5e1;border-left-color:#60a5fa}
@@ -350,6 +348,9 @@ body.dark-mode .location-settings-form label{color:#cbd5e1}
 .location-settings-form input{margin:0!important;text-align:left!important}
 .location-settings-note{font-size:12px;color:#64748b;line-height:1.5;text-align:left;margin:0 0 16px!important}
 body.dark-mode .location-settings-note{color:#cbd5e1}
+.location-auto-toggle{display:flex;align-items:flex-start;gap:9px;margin:0 0 12px;text-align:left;color:#475569;font-size:13px;line-height:1.4;cursor:pointer}
+.location-auto-toggle input{width:17px!important;height:17px;flex:0 0 17px;margin:0!important;accent-color:#0066cc}
+body.dark-mode .location-auto-toggle{color:#cbd5e1}
 
 /* Keep the admin dashboard inside the viewport; the wide data table scrolls only inside its card. */
 html,body{overflow-x:hidden}
@@ -485,7 +486,7 @@ html,body{overflow-x:hidden}
       </div>
     </div>
     <div class="grid" id="calendar"></div>
-    <div class="note">💡 Tap/click a date to choose In the office, Working from home, or Not a work day. Only office days count toward your quarterly target. Weekends can also be marked.</div>
+    <div class="note">💡 Tap/click a date to mark or unmark it as an office day. Only marked office days count toward your quarterly target. Weekends can also be marked.</div>
     <div class="actions">
       <button id="undo" style="display:none">Undo</button>
       <button id="clearQuarter">Clear Quarter</button>
@@ -554,7 +555,7 @@ html,body{overflow-x:hidden}
 <div class="modal" id="officeLocationModal" role="dialog" aria-modal="true" aria-labelledby="officeLocationTitle">
   <div class="modal-content">
     <h2 id="officeLocationTitle">Set office location</h2>
-    <p class="location-settings-note">Enter the office coordinates and the allowed radius. Your phone location is checked only when you tap “Check my location” and is not stored.</p>
+    <p class="location-settings-note">Enter the office coordinates and radius. Location is checked only while you tap “Check my location” or, if enabled, while the tracker is open. Your location is not stored.</p>
     <div class="location-settings-form">
       <label for="officeLatitude">Latitude</label>
       <input type="number" id="officeLatitude" min="-90" max="90" step="any" placeholder="e.g. 12.9716">
@@ -563,6 +564,7 @@ html,body{overflow-x:hidden}
       <label for="officeRadius">Radius (meters)</label>
       <input type="number" id="officeRadius" min="10" max="5000" step="10" value="200">
     </div>
+    <label class="location-auto-toggle"><input type="checkbox" id="autoOfficeMark"> Automatically mark today when I’m within the radius while the tracker is open</label>
     <p class="auth-error" id="officeLocationError" aria-live="polite"></p>
     <div class="modal-buttons">
       <button class="cancel" id="cancelOfficeLocation" type="button">Cancel</button>
@@ -585,11 +587,6 @@ html,body{overflow-x:hidden}
   <div class="modal-content">
     <h2 id="modalTitle">Confirm Action</h2>
     <p id="modalMessage">Are you sure?</p>
-    <select id="dayTypeInput" style="display:none" aria-label="How to mark this date">
-      <option value="none">Not a work day</option>
-      <option value="office">In the office</option>
-      <option value="home">Working from home</option>
-    </select>
     <input type="number" id="modalInput" style="display:none" min="1" max="365">
     <div class="modal-buttons">
       <button class="cancel" onclick="closeModal()">Cancel</button>
@@ -625,6 +622,9 @@ const KEY_PENDING_SYNC="officeDaysTrackerPendingSync";
 const KEY_OFFICE_LOCATION="officeDaysTrackerOfficeLocation";
 let officeLocation=null;
 try{officeLocation=JSON.parse(localStorage.getItem(KEY_OFFICE_LOCATION)||"null")}catch(error){officeLocation=null}
+const KEY_AUTO_OFFICE="officeDaysTrackerAutoOffice";
+let autoOfficeEnabled=localStorage.getItem(KEY_AUTO_OFFICE)==="true";
+let officeLocationWatchId=null;
 let data=JSON.parse(localStorage.getItem(KEY_DATA)||"{}");
 let quarterTargets=JSON.parse(localStorage.getItem(KEY_TARGET)||"{}");
 if(!quarterTargets||typeof quarterTargets!=="object"||Array.isArray(quarterTargets))quarterTargets={};
@@ -634,7 +634,6 @@ let view=new Date(); view.setDate(1);
 let isQuarterView=false;
 const $=id=>document.getElementById(id);
 let pendingAction=null;
-let pendingDateKey=null;
 let editingTarget=false;
 let previousData=null;
 let toastTimer=null;
@@ -672,6 +671,7 @@ function openOfficeLocationSettings(){
   $("officeLatitude").value=officeLocation?.latitude??"";
   $("officeLongitude").value=officeLocation?.longitude??"";
   $("officeRadius").value=officeLocation?.radius??200;
+  $("autoOfficeMark").checked=autoOfficeEnabled;
   $("officeLocationError").textContent="";
   $("officeLocationModal").classList.add("active");
 }
@@ -698,8 +698,12 @@ function saveOfficeLocationSettings(){
   }
   officeLocation={latitude,longitude,radius};
   localStorage.setItem(KEY_OFFICE_LOCATION,JSON.stringify(officeLocation));
+  autoOfficeEnabled=$("autoOfficeMark").checked;
+  localStorage.setItem(KEY_AUTO_OFFICE,autoOfficeEnabled?"true":"false");
+  if(autoOfficeEnabled)startOfficeLocationWatch();
+  else stopOfficeLocationWatch();
   closeOfficeLocationSettings();
-  showToast("Office location saved on this device");
+  showToast(autoOfficeEnabled?"Office location saved; automatic marking is on while the tracker is open":"Office location saved on this device");
 }
 
 function distanceInMeters(latitude1,longitude1,latitude2,longitude2){
@@ -709,6 +713,33 @@ function distanceInMeters(latitude1,longitude1,latitude2,longitude2){
   const deltaLongitude=radians(longitude2-longitude1);
   const a=Math.sin(deltaLatitude/2)**2+Math.cos(radians(latitude1))*Math.cos(radians(latitude2))*Math.sin(deltaLongitude/2)**2;
   return earthRadius*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function stopOfficeLocationWatch(){
+  if(officeLocationWatchId!==null&&navigator.geolocation){
+    navigator.geolocation.clearWatch(officeLocationWatchId);
+    officeLocationWatchId=null;
+  }
+}
+
+function startOfficeLocationWatch(){
+  if(!autoOfficeEnabled||!officeLocation||!auth.currentUser||document.hidden||!navigator.geolocation||officeLocationWatchId!==null)return;
+  officeLocationWatchId=navigator.geolocation.watchPosition(position=>{
+    if(!officeLocation||!auth.currentUser)return;
+    const distance=distanceInMeters(position.coords.latitude,position.coords.longitude,officeLocation.latitude,officeLocation.longitude);
+    if(distance>officeLocation.radius)return;
+    const today=key(new Date());
+    if(isOfficeDay(data[today]))return;
+    rememberData();
+    data[today]="office";
+    save();
+    render();
+    showToast("You’re within the office radius — today marked as an office day");
+  },error=>{
+    stopOfficeLocationWatch();
+    const message=error.code===1?"Location permission was denied":error.code===2?"Your location could not be determined":"Location check timed out";
+    showToast(`Automatic office marking unavailable: ${message}`);
+  },{enableHighAccuracy:true,timeout:15000,maximumAge:30000});
 }
 
 function checkOfficeLocation(){
@@ -1207,6 +1238,7 @@ $("adminYear").onchange=()=>{
 $("exportAdminAll").onclick=()=>exportAdminCsv(adminRows,`office-days-dashboard-${adminYear}.csv`);
 auth.onAuthStateChanged(async user=>{
   authStateResolved=true;
+  stopOfficeLocationWatch();
   $("authScreen").style.display=user?"none":"flex";
   $("appContent").style.display=user?"block":"none";
   $("adminButton").classList.remove("visible");
@@ -1244,6 +1276,12 @@ auth.onAuthStateChanged(async user=>{
   }
   render();
   showInstallGuide(user);
+  startOfficeLocationWatch();
+});
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden)stopOfficeLocationWatch();
+  else startOfficeLocationWatch();
 });
 
 if(isDarkMode) document.body.classList.add("dark-mode");
@@ -1333,7 +1371,6 @@ function updateMonthlyDisplay(){
 function showModal(title,message,action,isTargetEdit=false){
   $("modalTitle").textContent=title;
   $("modalMessage").textContent=message;
-  $("dayTypeInput").style.display="none";
   const input=$("modalInput");
   if(isTargetEdit){
     input.style.display="block";
@@ -1345,42 +1382,17 @@ function showModal(title,message,action,isTargetEdit=false){
   }
   editingTarget=isTargetEdit;
   pendingAction=action;
-  pendingDateKey=null;
-  $("confirmModal").classList.add("active");
-}
-
-function showDayTypeModal(dateKey){
-  const selector=$("dayTypeInput");
-  const status=data[dateKey]===true||data[dateKey]==="office"?"office":data[dateKey]==="home"?"home":"none";
-  $("modalTitle").textContent="Mark Work Location";
-  $("modalMessage").textContent=`Choose how to mark ${new Date(`${dateKey}T00:00:00`).toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"})}.`;
-  $("modalInput").style.display="none";
-  selector.value=status;
-  selector.style.display="block";
-  pendingDateKey=dateKey;
-  pendingAction=null;
-  editingTarget=false;
   $("confirmModal").classList.add("active");
 }
 
 function closeModal(){
   $("confirmModal").classList.remove("active");
   pendingAction=null;
-  pendingDateKey=null;
   editingTarget=false;
 }
 
 function confirmAction(){
-  if(pendingDateKey){
-    const dateKey=pendingDateKey;
-    const selectedType=$("dayTypeInput").value;
-    rememberData();
-    if(selectedType==="none")delete data[dateKey];
-    else data[dateKey]=selectedType;
-    save();
-    render();
-    closeModal();
-  }else if(editingTarget){
+  if(editingTarget){
     const newTarget=parseInt($("modalInput").value);
     if(isNaN(newTarget)||newTarget<1||newTarget>365){
       alert("Please enter a valid number between 1 and 365");
@@ -1415,17 +1427,22 @@ function renderCalendar(){
   
   for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
     let k=key(d), e=document.createElement("div");
-    const status=data[k]===true||data[k]==="office"?"office":data[k]==="home"?"home":"";
-    const statusLabel=status==="office"?"office day":status==="home"?"work-from-home day":"not marked";
+    const status=isOfficeDay(data[k])?"office":"";
+    const statusLabel=status?"office day":"not marked";
     e.className="day"+(d.getDay()==0||d.getDay()==6?" weekend ":"")+(status?` ${status} `:"")+(key(d)==key(new Date())?" today":"");
     e.tabIndex=0;
     e.setAttribute("role","button");
     e.setAttribute("aria-pressed",status?"true":"false");
     e.setAttribute("aria-label",`${d.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"})}, ${statusLabel}`);
     const officeIcon='<svg viewBox="0 0 24 24"><path d="M4 21V5l8-3v19M12 9h8v12M2 21h20"/><path d="M7 7h2m-2 4h2m-2 4h2m7-3h2m-2 4h2"/></svg>';
-    const homeIcon='<svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v11h14V9M9 20v-6h6v6"/></svg>';
-    e.innerHTML='<div class="num">'+d.getDate()+'</div>'+(status?`<div class="tag${status==="home"?" home-tag":""}" aria-hidden="true">${status==="home"?homeIcon:officeIcon}</div>`:'');
-    const toggleDay=()=>showDayTypeModal(k);
+    e.innerHTML='<div class="num">'+d.getDate()+'</div>'+(status?`<div class="tag" aria-hidden="true">${officeIcon}</div>`:'');
+    const toggleDay=()=>{
+      rememberData();
+      if(status)delete data[k];
+      else data[k]="office";
+      save();
+      render();
+    };
     e.onclick=toggleDay;
     e.onkeydown=event=>{
       if(event.key==="Enter"||event.key===" "){
@@ -1548,7 +1565,7 @@ $("fileInput").onchange=(e)=>{
         const parsed=new Date(year,month-1,day);
         return parsed.getFullYear()===year&&parsed.getMonth()===month-1&&parsed.getDate()===day;
       };
-      const validDates=Object.keys(importData).filter(date=>isValidDateKey(date)&&(importData[date]===true||importData[date]==="office"||importData[date]==="home"));
+      const validDates=Object.keys(importData).filter(date=>isValidDateKey(date)&&(importData[date]===true||importData[date]==="office"));
       if(typeof importData!=="object"||Array.isArray(importData)||validDates.length!==Object.keys(importData).length){
         alert("Invalid file format. Dates must use YYYY-MM-DD format.");
         return;
