@@ -1,0 +1,1453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Office Days Tracker">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="app-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="app-icon.svg">
+<title>Office Days Tracker - Voya</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#172033;min-height:100vh;transition:background 0.3s}
+body.dark-mode{background:linear-gradient(135deg,#0a0e27 0%,#1a1f35 100%)}
+.app{max-width:950px;margin:auto;padding:20px}
+.header{position:relative;background:white;border-radius:16px;padding:20px;margin-bottom:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);display:flex;justify-content:space-between;align-items:center;transition:all 0.3s}
+body.dark-mode .header{background:#1a2332;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+body.dark-mode .header {color:#e0e7ff}
+.logo-section{display:flex;align-items:center;gap:16px}
+.logo-link{display:flex;align-items:center;gap:16px;text-decoration:none;cursor:pointer}
+.logo{width:50px;height:50px;background:white;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:6px;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain}
+.title-group h1{font-size:28px;margin:0;font-weight:700;color:#0f172a;transition:color 0.3s}
+body.dark-mode .title-group h1{color:#e0e7ff}
+.title-group p{font-size:13px;color:#64748b;margin:4px 0 0 0;transition:color 0.3s}
+.welcome-message{margin-top:8px;color:#0066cc;font-size:13px;font-weight:700}
+body.dark-mode .welcome-message{color:#60a5fa}
+.welcome-row{position:absolute;top:74px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;max-width:calc(100% - 40px)}
+.edit-name-button{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:0;border-radius:6px;background:transparent;color:#0066cc;font-size:14px;line-height:1;cursor:pointer;padding:0}
+.edit-name-button:hover{background:rgba(0,102,204,.1)}
+body.dark-mode .edit-name-button{color:#60a5fa}
+body.dark-mode .edit-name-button:hover{background:rgba(96,165,250,.15)}
+body.dark-mode .title-group p{color:#94a3b8}
+.controls{display:flex;gap:8px;align-items:center}
+.controls button,.controls select{padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;background:white;font-size:15px;cursor:pointer;font-weight:500;color:#0f172a;transition:all 0.2s}
+.controls button:hover,.controls select:hover{background:#f8fafc;border-color:#cbd5e1}
+body.dark-mode .controls button,body.dark-mode .controls select{background:#2d3748;color:#e0e7ff;border-color:#4a5568}
+body.dark-mode .controls button:hover,body.dark-mode .controls select:hover{background:#4a5568;border-color:#718096}
+.controls select{padding:10px 12px}
+.theme-toggle{background:none;border:none;font-size:20px;cursor:pointer;padding:8px 12px;border-radius:8px;transition:all 0.2s}
+.theme-toggle:hover{background:rgba(0,102,204,0.1)}
+body.dark-mode .theme-toggle:hover{background:rgba(0,102,204,0.2)}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:24px 0}
+.card{background:white;border-radius:14px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border-left:4px solid #0066cc;transition:all 0.3s;position:relative}
+body.dark-mode .card{background:#1a2332;box-shadow:0 2px 12px rgba(0,0,0,0.3)}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+body.dark-mode .card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.card:nth-child(2){border-left-color:#10b981}
+.card:nth-child(3){border-left-color:#f59e0b}
+.card:nth-child(4){border-left-color:#8b5cf6}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card.editable .card-header{cursor:pointer}
+.edit-btn{background:none;border:none;color:#0066cc;cursor:pointer;font-size:18px;padding:0;opacity:0;transition:opacity 0.2s;display:inline-flex;align-items:center;justify-content:center}
+.card.editable:hover .edit-btn{opacity:1}
+.label{font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;transition:color 0.3s}
+body.dark-mode .label{color:#94a3b8}
+.value{font-size:32px;font-weight:700;color:#0f172a;transition:color 0.3s}
+body.dark-mode .value{color:#e0e7ff}
+.value.highlight{color:#0066cc}
+.progress-container{margin-top:12px}
+.progress-bar{background:#e2e8f0;border-radius:8px;height:8px;overflow:hidden;position:relative}
+body.dark-mode .progress-bar{background:#4a5568}
+.progress-fill{height:100%;background:linear-gradient(90deg,#0066cc 0%,#0052a3 100%);border-radius:8px;transition:width 0.3s;display:flex;align-items:center;justify-content:center}
+.progress-text{font-size:11px;color:#0066cc;font-weight:600;margin-top:6px;text-align:right;transition:color 0.3s}
+body.dark-mode .progress-text{color:#60a5fa}
+.monthly-stats{margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0;transition:all 0.3s}
+body.dark-mode .monthly-stats{border-top-color:#4a5568}
+.monthly-header{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;margin-bottom:12px;transition:all 0.2s}
+.monthly-header:hover{opacity:0.7}
+.monthly-toggle{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#f8fafc;border-radius:4px;transition:all 0.3s;flex-shrink:0;color:#0066cc;font-weight:bold;font-size:14px}
+body.dark-mode .monthly-toggle{background:#2d3748;color:#60a5fa}
+.monthly-toggle.expanded{transform:rotate(0deg)}
+.monthly-toggle.collapsed{transform:rotate(-90deg)}
+.monthly-stats h4{margin:0;font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;transition:color 0.3s}
+body.dark-mode .monthly-stats h4{color:#94a3b8}
+.monthly-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:500px;overflow:hidden;transition:all 0.4s ease-in-out;opacity:1}
+.monthly-grid.hidden{max-height:0;opacity:0;margin-bottom:0}
+.month-item{background:#f8fafc;padding:8px;border-radius:8px;text-align:center;font-size:11px;animation:slideIn 0.3s ease-out}
+body.dark-mode .month-item{background:#2d3748}
+.month-item .month-num{font-weight:700;color:#0066cc;font-size:14px;display:block}
+body.dark-mode .month-item .month-num{color:#60a5fa}
+.month-item .month-label{color:#64748b;font-size:9px;display:block;transition:color 0.3s}
+body.dark-mode .month-item .month-label{color:#94a3b8}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.calendar{background:white;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.08);transition:all 0.3s}
+body.dark-mode .calendar{background:#1a2332;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.monthhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.monthhead button{border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;background:white;cursor:pointer;font-size:18px;color:#0066cc;font-weight:600;transition:all 0.2s}
+body.dark-mode .monthhead button{background:#2d3748;color:#60a5fa;border-color:#4a5568}
+.monthhead button:hover{background:#f0f6ff;border-color:#0066cc}
+body.dark-mode .monthhead button:hover{background:#4a5568;border-color:#60a5fa}
+.monthhead strong{font-size:20px;color:#0f172a;font-weight:700;transition:color 0.3s}
+body.dark-mode .monthhead strong{color:#e0e7ff}
+.view-toggle{display:flex;gap:8px;align-items:center}
+.view-toggle button{padding:8px 12px;font-size:12px;font-weight:600;border:1px solid #e2e8f0;background:white;border-radius:8px;cursor:pointer;transition:all 0.2s;color:#0f172a}
+body.dark-mode .view-toggle button{background:#2d3748;color:#e0e7ff;border-color:#4a5568}
+.view-toggle button.active{background:#0066cc;color:white;border-color:#0066cc}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dow{text-align:center;font-size:12px;color:#64748b;padding:12px 0;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;transition:color 0.3s}
+body.dark-mode .dow{color:#94a3b8}
+.day{min-height:76px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;padding:8px;cursor:pointer;position:relative;transition:all 0.2s;display:flex;flex-direction:column}
+body.dark-mode .day{background:#2d3748;border-color:#4a5568}
+.day:hover,.day:focus-visible{border-color:#0066cc;box-shadow:0 4px 12px rgba(0,102,204,0.1);outline:2px solid rgba(0,102,204,.35);outline-offset:2px}
+.day.empty{border:0;background:transparent;cursor:default}
+.day.empty:hover{border:0}
+.day.office{background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border-color:#0066cc;box-shadow:0 2px 8px rgba(0,102,204,0.15)}
+body.dark-mode .day.office{background:linear-gradient(135deg,#1a3a4a 0%,#1a2f3a 100%)}
+.day.weekend{background:#f8f9fa;border-color:#e5e7eb;color:#9ca3af}
+body.dark-mode .day.weekend{background:#2d3748;border-color:#4a5568;color:#718096}
+.day.today{outline:2px solid #f59e0b;outline-offset:-2px;box-shadow:0 0 0 3px rgba(245,158,11,0.1)}
+.day .num{font-weight:700;font-size:16px;color:#0f172a;transition:color 0.3s}
+body.dark-mode .day .num{color:#e0e7ff}
+.day.weekend .num{color:#9ca3af}
+body.dark-mode .day.weekend .num{color:#718096}
+.day .tag{display:flex;align-items:center;justify-content:center;width:20px;height:22px;color:#0066cc;background:#e0f2fe;padding:2px;border-radius:4px;margin-top:auto;transition:all 0.3s}
+.day .tag svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.dark-mode .day .tag{color:#60a5fa;background:rgba(96,165,250,0.2)}
+.note{margin-top:16px;font-size:13px;color:#64748b;padding:12px;background:#f8fafc;border-left:3px solid #0066cc;border-radius:6px;transition:all 0.3s}
+body.dark-mode .note{background:#2d3748;color:#cbd5e1;border-left-color:#60a5fa}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.actions button{border:none;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.5px}
+.actions button:nth-child(1){background:#10b981;color:white;box-shadow:0 4px 12px rgba(16,185,129,0.3)}
+.actions button:nth-child(1):hover{background:#059669;transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,185,129,0.4)}
+.actions button:nth-child(2){background:#0066cc;color:white;box-shadow:0 4px 12px rgba(0,102,204,0.3)}
+.actions button:nth-child(2):hover{background:#0052a3;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,102,204,0.4)}
+.actions button:nth-child(3){background:#6366f1;color:white;box-shadow:0 4px 12px rgba(99,102,241,0.3)}
+.actions button:nth-child(3):hover{background:#4f46e5;transform:translateY(-2px);box-shadow:0 6px 16px rgba(99,102,241,0.4)}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:1000}
+.modal.active{display:flex}
+.modal-content{background:white;border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-width:400px;width:90%;text-align:center;transition:all 0.3s}
+body.dark-mode .modal-content{background:#1a2332}
+.modal-content h2{margin:0 0 12px 0;font-size:20px;color:#0f172a;transition:color 0.3s}
+body.dark-mode .modal-content h2{color:#e0e7ff}
+.modal-content p{margin:0 0 24px 0;font-size:14px;color:#64748b;line-height:1.6;transition:color 0.3s}
+body.dark-mode .modal-content p{color:#cbd5e1}
+.modal-content input{width:100%;padding:10px 12px;font-size:14px;border:2px solid #e2e8f0;border-radius:8px;margin:0 0 24px 0;text-align:center;background:white;color:#0f172a;transition:all 0.3s}
+body.dark-mode .modal-content input{background:#2d3748;color:#e0e7ff;border-color:#4a5568}
+.modal-content input:focus{outline:none;border-color:#0066cc}
+.modal-buttons{display:flex;gap:12px;justify-content:center}
+.modal-buttons button{border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.modal-buttons .confirm{background:#10b981;color:white;box-shadow:0 4px 12px rgba(16,185,129,0.3)}
+.modal-buttons .confirm:hover{background:#059669;transform:translateY(-2px)}
+.modal-buttons .cancel{background:#e2e8f0;color:#0f172a;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+body.dark-mode .modal-buttons .cancel{background:#4a5568;color:#e0e7ff}
+.modal-buttons .cancel:hover{background:#cbd5e1;transform:translateY(-2px)}
+body.dark-mode .modal-buttons .cancel:hover{background:#718096}
+.account-delete-icon{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #fecaca!important;border-radius:10px;background:#fff7f7!important;color:#dc2626!important;padding:8px!important;font-size:18px!important;line-height:1}
+.account-delete-icon:hover{background:#fee2e2!important;border-color:#f87171!important}
+body.dark-mode .account-delete-icon{background:rgba(127,29,29,.2)!important;border-color:rgba(248,113,113,.45)!important;color:#fca5a5!important}
+body.dark-mode .account-delete-icon:hover{background:rgba(127,29,29,.45)!important}
+#fileInput{display:none}
+.save-status{font-size:12px;font-weight:600;color:#64748b;min-height:18px;margin-top:6px}
+body.dark-mode .save-status{color:#94a3b8}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#172033;color:white;padding:11px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:1200;transition:opacity .2s,transform .2s;font-size:13px}
+.toast.visible{opacity:1;transform:translate(-50%,0)}
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden;background:radial-gradient(circle at 15% 20%,rgba(0,185,255,.18),transparent 32%),radial-gradient(circle at 85% 80%,rgba(99,102,241,.2),transparent 34%)}
+.auth-screen::before,.auth-screen::after{content:"";position:absolute;border:1px solid rgba(96,165,250,.18);border-radius:50%;pointer-events:none}
+.auth-screen::before{width:520px;height:520px;top:-260px;right:-160px;box-shadow:0 0 80px rgba(0,185,255,.12)}
+.auth-screen::after{width:380px;height:380px;bottom:-220px;left:-120px;box-shadow:0 0 80px rgba(99,102,241,.14)}
+.auth-card{width:min(440px,100%);position:relative;z-index:1;background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.8);border-radius:24px;padding:38px 34px 30px;box-shadow:0 24px 70px rgba(0,0,0,.28),0 0 0 1px rgba(96,165,250,.08);backdrop-filter:blur(18px)}
+.auth-card::before{content:"SECURE WORKFORCE PLATFORM";display:block;margin:0 auto 18px;color:#0066cc;font-size:10px;font-weight:800;letter-spacing:2px;text-align:center}
+.auth-card h1{margin:0 0 10px;color:#0f172a;font-size:30px;letter-spacing:-.7px;text-align:center}
+body.dark-mode .auth-card{background:rgba(26,35,50,.94);border-color:rgba(148,163,184,.18);box-shadow:0 24px 70px rgba(0,0,0,.45),0 0 0 1px rgba(96,165,250,.1)}
+body.dark-mode .auth-card h1{color:#e0e7ff}
+.auth-card p{margin:0 0 26px;color:#64748b;text-align:center;font-size:14px;line-height:1.5}
+body.dark-mode .auth-card p{color:#cbd5e1}
+.auth-form{display:grid;gap:10px}
+.auth-form label{margin-top:3px;font-size:12px;font-weight:700;color:#475569;letter-spacing:.3px}
+body.dark-mode .auth-form label{color:#cbd5e1}
+.auth-form input{width:100%;padding:13px 14px;border:1px solid #cbd5e1;border-radius:11px;font-size:15px;background:rgba(248,250,252,.9);color:#172033;transition:border-color .2s,box-shadow .2s,transform .2s}
+.auth-form input:focus{outline:none;border-color:#1597e5;box-shadow:0 0 0 4px rgba(21,151,229,.14);transform:translateY(-1px)}
+body.dark-mode .auth-form input{background:#2d3748;color:#e0e7ff;border-color:#4a5568}
+.auth-form button{margin-top:8px;padding:13px;border:0;border-radius:11px;background:linear-gradient(135deg,#0066cc,#4338ca);color:white;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(0,102,204,.28);transition:transform .2s,box-shadow .2s,opacity .2s}
+.auth-form button:hover{background:linear-gradient(135deg,#0052a3,#3730a3);transform:translateY(-2px);box-shadow:0 12px 24px rgba(0,102,204,.36)}
+.auth-form button:disabled{cursor:wait;opacity:.65;transform:none}
+.auth-switch{margin-top:20px!important;margin-bottom:0!important;color:#0066cc!important;cursor:pointer;font-weight:600}
+.auth-switch:hover{text-decoration:underline}
+.forgot-password{display:block;margin:4px 0 0;text-align:center;color:#0066cc;text-decoration:none;font-size:13px;font-weight:600}
+.forgot-password:hover{text-decoration:underline}
+.auth-error{min-height:18px;color:#dc2626!important;margin:2px 0 0!important;text-align:left!important;font-size:12px!important}
+#appContent{display:none}
+.build-watermark{position:fixed;left:14px;bottom:10px;color:rgba(226,232,240,.72);font-size:11px;letter-spacing:.3px;z-index:10;pointer-events:none}
+body.dark-mode .build-watermark{color:rgba(148,163,184,.72)}
+.admin-button{display:none!important;background:#7c3aed!important;color:white!important;border-color:#7c3aed!important}
+.admin-button.visible{display:inline-block!important}
+.admin-screen{display:none;position:fixed;inset:0;z-index:900;background:linear-gradient(135deg,#f8fafc,#e0f2fe);overflow:auto;padding:24px}
+body.dark-mode .admin-screen{background:linear-gradient(135deg,#0a0e27,#1a1f35)}
+.admin-panel{max-width:1180px;margin:auto}
+.admin-topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
+.admin-topbar h2{margin:0;color:#0f172a;font-size:26px}
+body.dark-mode .admin-topbar h2{color:#e0e7ff}
+.admin-topbar p{margin:5px 0 0;color:#64748b;font-size:13px}
+body.dark-mode .admin-topbar p{color:#94a3b8}
+.admin-close{border:1px solid #cbd5e1;background:white;color:#0f172a;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer}
+body.dark-mode .admin-close{background:#2d3748;color:#e0e7ff;border-color:#4a5568}
+.admin-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.admin-metric,.admin-table-card{background:white;border-radius:14px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+body.dark-mode .admin-metric,body.dark-mode .admin-table-card{background:#1a2332;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.admin-metric span{display:block;color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+body.dark-mode .admin-metric span{color:#94a3b8}
+.admin-metric strong{display:block;margin-top:8px;color:#0f172a;font-size:30px}
+body.dark-mode .admin-metric strong{color:#e0e7ff}
+.admin-table-card{overflow:auto}
+.admin-table-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.admin-table-header h3{margin:0;color:#0f172a;font-size:17px}
+body.dark-mode .admin-table-header h3{color:#e0e7ff}
+.admin-search{padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;min-width:230px;font-size:13px;background:white;color:#172033}
+body.dark-mode .admin-search{background:#2d3748;color:#e0e7ff;border-color:#4a5568}
+.admin-table{width:100%;border-collapse:collapse;font-size:13px;min-width:650px}
+.admin-table th{text-align:left;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;padding:10px 8px}
+.admin-table td{padding:12px 8px;border-bottom:1px solid #e2e8f0;color:#172033}.admin-select-cell{width:42px;text-align:center}.admin-select{width:16px;height:16px;accent-color:#2563eb;cursor:pointer}
+body.dark-mode .admin-table th{color:#94a3b8;border-bottom-color:#4a5568}
+body.dark-mode .admin-table td{color:#e0e7ff;border-bottom-color:#4a5568}
+.admin-empty{padding:24px;text-align:center;color:#64748b}
+.admin-date-details{display:none;margin-top:18px;padding:18px;border-radius:14px;background:#f8fafc;border:1px solid #dbeafe}
+.admin-date-details.visible{display:block}
+.admin-date-details h3{margin:0 0 6px;color:#1e3a8a;font-size:17px}
+.admin-date-details p{margin:0 0 14px;color:#64748b;font-size:13px}
+.admin-date-list{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}
+.admin-date-list li{padding:7px 10px;border-radius:8px;background:white;border:1px solid #bfdbfe;color:#1e40af;font-size:12px;font-weight:700}
+.admin-view-dates{border:0;border-radius:7px;padding:7px 9px;background:#7c3aed;color:white;font-size:11px;font-weight:700;cursor:pointer}
+body.dark-mode .admin-date-details{background:#2d3748;border-color:#4a5568}
+body.dark-mode .admin-date-details h3{color:#c4b5fd}
+body.dark-mode .admin-date-details p{color:#cbd5e1}
+body.dark-mode .admin-date-list li{background:#1a2332;border-color:#4a5568;color:#bfdbfe}
+/* Colorful, full-page admin dashboard */
+.admin-screen{padding:32px;background:radial-gradient(circle at 8% 12%,rgba(14,165,233,.28),transparent 28%),radial-gradient(circle at 92% 8%,rgba(168,85,247,.28),transparent 30%),linear-gradient(135deg,#eef2ff,#ecfeff 52%,#fdf2f8)}
+.admin-panel{max-width:1500px}
+.admin-topbar{padding:24px 28px;border-radius:22px;background:linear-gradient(135deg,#1d4ed8,#7c3aed 55%,#db2777);box-shadow:0 18px 45px rgba(79,70,229,.28)}
+.admin-topbar h2,.admin-topbar p{color:white!important}.admin-topbar p{opacity:.82}
+.admin-close{border:0;background:rgba(255,255,255,.18);color:white;padding:11px 18px}.admin-close:hover{background:rgba(255,255,255,.3)}
+.admin-metrics{grid-template-columns:repeat(4,1fr);gap:18px;margin:20px 0}
+.admin-quarter-metrics{margin-top:0}
+.admin-metric{border:0;border-radius:18px;padding:20px;background:rgba(255,255,255,.9);box-shadow:0 12px 30px rgba(30,41,59,.12)}
+.admin-metric:nth-child(1){border-top:5px solid #06b6d4}.admin-metric:nth-child(2){border-top:5px solid #10b981}.admin-metric:nth-child(3){border-top:5px solid #f59e0b}.admin-metric:nth-child(4){border-top:5px solid #ec4899}
+.admin-table-card{border:0;border-radius:18px;background:rgba(255,255,255,.94);box-shadow:0 15px 40px rgba(30,41,59,.14);padding:22px}
+.admin-table-header h3{font-size:20px}.admin-export-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.admin-export{border:0;border-radius:9px;padding:9px 12px;background:linear-gradient(135deg,#06b6d4,#2563eb);color:white;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 5px 12px rgba(37,99,235,.2)}.admin-export:hover{transform:translateY(-1px);filter:brightness(1.05)}.admin-table{min-width:1180px}.admin-table th{background:#eef2ff;color:#3730a3;padding:13px 10px}.admin-table th:first-child{border-radius:10px 0 0 10px}.admin-table th:last-child{border-radius:0 10px 10px 0}.admin-table td{padding:14px 10px}.admin-table tbody tr:hover{background:#f8fafc}
+.admin-user{font-weight:700;color:#1e3a8a!important}.admin-quarter{font-weight:700;color:#475569!important}.admin-marked{font-weight:800;color:#047857!important}.admin-progress{display:block;margin-top:5px;width:72px;height:5px;border-radius:5px;background:#e2e8f0;overflow:hidden}.admin-progress i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#06b6d4,#7c3aed)}
+@media(max-width:768px){.admin-screen{padding:16px}.admin-metrics{grid-template-columns:repeat(2,1fr)}.admin-topbar{align-items:flex-start}.admin-table-header{align-items:stretch;flex-direction:column}.admin-search{min-width:0;width:100%}.admin-table-card{overflow-x:auto}.admin-table{min-width:760px;font-size:11px}.admin-table th,.admin-table td{padding:10px 7px}.admin-export-actions{width:100%;display:grid;grid-template-columns:1fr;gap:8px}.admin-export-actions .admin-search,.admin-export-actions .admin-export{width:100%;min-width:0}}
+@media(max-width:400px){.admin-metrics{grid-template-columns:1fr}.admin-topbar h2{font-size:21px}}
+/* Firebase restores the session asynchronously; avoid showing the login form during that check. */
+#authScreen{display:none}
+.install-instructions{margin:0 0 20px!important;text-align:left!important}
+.install-instructions strong{color:#0f172a}
+body.dark-mode .install-instructions strong{color:#e0e7ff}
+.install-instructions .install-tip{display:block;margin-top:10px;padding:10px 12px;border-radius:9px;background:#eff6ff;color:#1e40af;font-size:13px}
+body.dark-mode .install-instructions .install-tip{background:#26364d;color:#bfdbfe}
+.whatsapp-widget{--widget-bottom:20px;position:fixed;bottom:var(--widget-bottom);right:30px;z-index:999;animation:bounce 2s infinite;transition:bottom .25s ease}
+.whatsapp-widget.at-page-bottom{bottom:calc(var(--widget-bottom) + 90px)}
+.whatsapp-button{display:flex;align-items:center;justify-content:center;width:60px;height:60px;background:#25D366;border-radius:50%;box-shadow:0 8px 24px rgba(37,211,102,0.4);cursor:pointer;transition:all 0.3s;text-decoration:none;font-size:32px;border:none}
+.whatsapp-button:hover{transform:scale(1.1);box-shadow:0 12px 32px rgba(37,211,102,0.6)}
+.whatsapp-tooltip{position:absolute;bottom:80px;right:0;background:white;padding:12px 16px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.15);white-space:nowrap;font-size:13px;color:#0f172a;font-weight:500;opacity:0;transform:translateY(10px) translateX(10px);transition:all 0.3s;pointer-events:none;max-width:220px;text-align:center}
+body.dark-mode .whatsapp-tooltip{background:#1a2332;color:#e0e7ff}
+.whatsapp-widget:hover .whatsapp-tooltip{opacity:1;transform:translateY(0) translateX(10px)}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+@media(max-width:768px){
+  .app{padding:16px}
+  .header{padding:16px;gap:12px;justify-content:space-between}
+  .logo{width:44px;height:44px;font-size:20px}
+  .title-group h1{font-size:24px}
+  .welcome-row{position:static;transform:none;width:100%;max-width:none}
+  .summary{gap:12px;margin:16px 0}
+  .card{padding:14px}
+  .value{font-size:28px}
+  .label{font-size:11px}
+  .edit-btn{font-size:16px;opacity:1}
+  .calendar{padding:16px}
+  .day{min-height:70px;padding:6px;font-size:13px}
+  .day .num{font-size:15px}
+  .grid{gap:5px}
+  .monthhead strong{font-size:18px}
+  .monthhead{gap:8px}
+  .controls{flex-wrap:wrap}
+  .controls button,.controls select{padding:8px 12px;font-size:13px}
+  .note{font-size:12px;padding:10px;margin-top:12px}
+  .actions{gap:8px}
+  .actions button{padding:9px 14px;font-size:12px}
+  .actions .account-delete-icon{flex:0 0 38px;min-width:38px;width:38px;height:38px;padding:8px!important}
+  .whatsapp-button{width:56px;height:56px;font-size:28px}
+  .whatsapp-widget{--widget-bottom:20px;right:20px}
+  .view-toggle{gap:4px}
+  .view-toggle button{padding:6px 10px;font-size:11px}
+  .monthly-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:600px){
+  .app{padding:12px}
+  .admin-button.visible{display:block!important;flex:1 1 100%;width:100%;min-width:0;order:5}
+  .admin-screen{padding:12px}
+  .admin-topbar{padding:16px;flex-direction:column;align-items:stretch;gap:12px}
+  .admin-topbar h2{font-size:20px}
+  .admin-close{width:100%}
+  .admin-table-card{width:100%;max-width:100%;min-width:0;padding:12px;border-radius:12px;overflow-x:auto;overflow-y:hidden}
+  .admin-table-header{width:100%;min-width:0;gap:10px}
+  .admin-export-actions{width:100%;display:grid;grid-template-columns:1fr;gap:8px}
+  .admin-search,.admin-export{width:100%;min-width:0}
+  .admin-table{width:760px;min-width:760px;max-width:none;font-size:11px}
+  .admin-table th,.admin-table td{padding:10px 7px;white-space:nowrap}
+
+  .header{flex-direction:column;text-align:center;gap:10px;padding:14px}
+  .logo-section{flex-direction:column;gap:10px}
+  .logo{width:40px;height:40px;font-size:18px}
+  .title-group h1{font-size:20px}
+  .title-group p{font-size:12px}
+  .controls{flex-direction:row;width:100%;justify-content:center;gap:6px;flex-wrap:wrap;order:3}
+  .controls button,.controls select{flex:1;min-width:50px;padding:8px 10px;font-size:12px}
+  .controls .account-delete-icon{flex:0 0 38px;min-width:38px;width:38px;padding:8px!important;font-size:17px!important}
+  .summary{grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+  .card{padding:12px;border-radius:10px}
+  .value{font-size:24px}
+  .label{font-size:10px;margin-bottom:6px}
+  .edit-btn{font-size:14px;opacity:1}
+  .calendar{padding:12px;border-radius:12px}
+  .grid{gap:4px}
+  .day{min-height:60px;padding:5px;font-size:12px;border-radius:8px;border-width:1px}
+  .day .num{font-size:13px}
+  .day .tag{font-size:8px;padding:1px 4px}
+  .dow{padding:8px 0;font-size:11px}
+  .monthhead{margin-bottom:12px;gap:8px}
+  .monthhead button{padding:8px 10px;font-size:16px}
+  .monthhead strong{font-size:16px}
+  .note{font-size:11px;padding:8px;margin-top:10px;border-radius:4px}
+  .actions{gap:6px;margin-top:12px;flex-wrap:wrap}
+  .actions button{padding:8px 10px;font-size:11px;flex:1}
+  .modal-content{max-width:90vw;padding:20px}
+  .modal-content h2{font-size:18px}
+  .modal-content p{font-size:13px;margin:0 0 18px 0}
+  .modal-buttons{flex-wrap:wrap}
+  .modal-buttons button{flex:1;min-width:100px}
+  .whatsapp-button{width:52px;height:52px;font-size:26px}
+  .whatsapp-widget{--widget-bottom:20px;right:16px}
+  .whatsapp-tooltip{font-size:12px;padding:10px 12px;bottom:70px;max-width:180px}
+  .monthly-grid{grid-template-columns:repeat(2,1fr)}
+  .monthly-header{gap:6px}
+  .monthly-toggle{width:18px;height:18px;font-size:12px}
+  .monthly-stats h4{font-size:11px}
+}
+
+/* Keep the admin dashboard inside the viewport; the wide data table scrolls only inside its card. */
+html,body{overflow-x:hidden}
+.admin-screen,.admin-panel,.admin-table-card{min-width:0;max-width:100%}
+.admin-table-card{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+
+@media(max-width:400px){
+  .app{padding:8px}
+  .header{padding:10px;gap:8px}
+  .logo{width:36px;height:36px;font-size:16px}
+  .title-group h1{font-size:18px}
+  .title-group p{font-size:11px}
+  .summary{grid-template-columns:1fr;gap:8px;margin:8px 0}
+  .card{padding:10px;border-radius:8px}
+  .value{font-size:22px}
+  .label{font-size:9px}
+  .edit-btn{font-size:12px}
+  .controls{gap:4px}
+  .controls button,.controls select{padding:6px 8px;font-size:11px;min-width:50px}
+  .calendar{padding:10px;border-radius:10px}
+  .grid{gap:3px}
+  .day{min-height:55px;padding:4px;font-size:11px}
+  .day .num{font-size:12px}
+  .monthhead button{padding:6px 8px;font-size:14px}
+  .monthhead strong{font-size:14px}
+  .note{font-size:10px;padding:6px;border-radius:4px;margin-top:8px}
+  .actions{gap:4px;margin-top:8px;flex-wrap:wrap}
+  .actions button{padding:7px 6px;font-size:10px;flex:1}
+  .modal-content{max-width:95vw;padding:16px}
+  .modal-content h2{font-size:16px}
+  .whatsapp-button{width:48px;height:48px;font-size:24px}
+  .whatsapp-widget{--widget-bottom:20px;right:12px}
+  .monthly-grid{grid-template-columns:1fr}
+  .monthly-stats{margin-top:12px;padding-top:12px}
+  .monthly-header{gap:4px}
+  .monthly-toggle{width:16px;height:16px;font-size:10px}
+}
+
+
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <h1>Office Days Tracker</h1>
+    <p id="authSubtitle">Sign in to continue</p>
+    <form class="auth-form" id="authForm" novalidate>
+      <div id="nameFieldGroup">
+        <label for="authName">Name</label>
+        <input id="authName" type="text" autocomplete="name" placeholder="Enter your name" maxlength="80">
+      </div>
+      <label for="authMobile">Mobile number</label>
+      <input id="authMobile" type="tel" inputmode="numeric" placeholder="Ex 98765XXXXX" pattern="[6-9][0-9]{9}" maxlength="10" required>
+      <label for="authPassword">Password</label>
+      <input id="authPassword" type="password" minlength="6" placeholder="At least 6 characters" required>
+      <p class="auth-error" id="authError"></p>
+      <button type="submit" id="authSubmit">Login</button>
+      <a class="forgot-password" id="forgotPassword" href="https://wa.me/918260147054?text=Hi%20KCB%2C%20I%20forgot%20my%20Office%20Days%20Tracker%20password.%20My%20registered%20mobile%20number%20is%20" target="_blank" rel="noopener">Forgot password?</a>
+    </form>
+    <p class="auth-switch" id="authSwitch">New user? Sign up</p>
+  </div>
+</div>
+<div id="appContent">
+<div class="app">
+  <div class="header">
+    <div class="logo-section">
+      <div class="title-group">
+        <h1>Office Days Tracker</h1>
+        <p>Powered by KCB</p>
+        <div class="welcome-row"><div class="welcome-message" id="welcomeMessage" aria-live="polite"></div><button class="edit-name-button" id="editNameButton" type="button" aria-label="Edit name" title="Edit name">✎</button></div>
+        <div class="save-status" id="saveStatus" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="prev">‹ Year</button>
+      <select id="year"></select>
+      <button id="next">Year ›</button>
+      <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">🌙</button>
+      <button id="adminButton" class="admin-button" title="Open admin dashboard">Admin Dashboard</button>
+      <button id="logout" title="Sign out">Logout</button>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="card">
+      <div class="label">Selected this quarter</div>
+      <div class="value highlight" id="qdays">0</div>
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="progress-text" id="progressText">0%</div>
+      </div>
+    </div>
+    <div class="card editable" id="targetCard">
+      <div class="card-header">
+        <div>
+          <div class="label" id="quarterTargetLabel">Quarter target</div>
+          <div class="value" id="quarterTarget">24</div>
+        </div>
+        <button class="edit-btn" title="Edit target">✎</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">Remaining</div>
+      <div class="value" id="remaining">24</div>
+    </div>
+    <div class="card">
+      <div class="label">Year total</div>
+      <div class="value" id="ydays">0</div>
+      <div class="monthly-stats">
+        <div class="monthly-header" id="monthlyHeader">
+          <div class="monthly-toggle expanded" id="monthlyToggle">▼</div>
+          <h4>Monthly Breakdown</h4>
+        </div>
+        <div class="monthly-grid" id="monthlyGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="calendar">
+    <div class="monthhead">
+      <button id="prevMonth">‹ Prev</button>
+      <strong id="monthTitle"></strong>
+      <button id="nextMonth">Next ›</button>
+      <div class="view-toggle">
+        <button id="viewMonth" class="active">Month</button>
+        <button id="viewQuarter">Quarter</button>
+      </div>
+    </div>
+    <div class="grid" id="calendar"></div>
+    <div class="note">💡 Tap/click a date to mark or unmark an office day. Weekends are shown separately but can still be selected.</div>
+    <div class="actions">
+      <button id="undo" style="display:none">Undo</button>
+      <button id="clearQuarter">Clear Quarter</button>
+      <button id="export">Export Data</button>
+      <button id="import">Import Data</button>
+      <button class="account-delete-icon" id="deleteAccountButton" type="button" title="Delete account" aria-label="Delete my account">🗑</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="admin-screen" id="adminScreen">
+  <div class="admin-panel">
+    <div class="admin-topbar">
+      <div><h2>Admin Dashboard</h2><p>Read-only overview of all Office Days Tracker users</p></div>
+      <button class="admin-close" id="closeAdmin">Back to tracker</button>
+    </div>
+    <div class="admin-table-card">
+      <div class="admin-table-header"><h3 id="adminActivityTitle">Current-year user activity</h3><div class="admin-export-actions"><select class="admin-search" id="adminYear" aria-label="Select dashboard year"></select><input class="admin-search" id="adminSearch" type="search" placeholder="Search by name or mobile number" aria-label="Search users by name or mobile number"><button class="admin-export" id="selectAllAdmin">Select visible</button><button class="admin-export" id="clearAdminSelection">Clear selection</button><button class="admin-export" id="exportAdminSelected">Export selected users</button><button class="admin-export" id="exportAdminAll">Export full dashboard</button></div></div>
+      <table class="admin-table"><thead><tr><th class="admin-select-cell" aria-label="Select users"></th><th>Name</th><th>Mobile number</th><th>Days in selected year</th><th>Q1 target / marked</th><th>Q2 target / marked</th><th>Q3 target / marked</th><th>Q4 target / marked</th><th>Last updated</th><th>Dates</th></tr></thead><tbody id="adminRows"></tbody></table>
+      <div class="admin-empty" id="adminEmpty" style="display:none">No matching users found.</div>
+      <section class="admin-date-details" id="adminDateDetails" aria-live="polite">
+        <h3 id="adminDateTitle">Selected user dates</h3>
+        <p id="adminDateSummary"></p>
+        <ul class="admin-date-list" id="adminDateList"></ul>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="whatsapp-widget">
+  <a href="https://wa.me/918260147054?text=Hi%20KCB%2C%20I%20have%20a%20suggestion%20or%20enhancement%20for%20the%20Office%20Days%20Tracker" target="_blank" rel="noopener" class="whatsapp-button" title="Contact via WhatsApp">
+    💬
+  </a>
+  <div class="whatsapp-tooltip">Looking for enhancements or suggestions? Text us on WhatsApp!</div>
+</div>
+
+<div class="modal" id="editNameModal" role="dialog" aria-modal="true" aria-labelledby="editNameTitle">
+  <div class="modal-content">
+    <h2 id="editNameTitle">Edit your name</h2>
+    <p>Update the name shown on your tracker profile.</p>
+    <input type="text" id="editNameInput" maxlength="80" autocomplete="name" aria-label="Name">
+    <p class="auth-error" id="editNameError" aria-live="polite"></p>
+    <div class="modal-buttons">
+      <button class="cancel" id="cancelNameEdit" type="button">Cancel</button>
+      <button class="confirm" id="saveNameEdit" type="button">Save name</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="deleteAccountModal" role="dialog" aria-modal="true" aria-labelledby="deleteAccountTitle">
+  <div class="modal-content">
+    <h2 id="deleteAccountTitle">Delete your account?</h2>
+    <p>This permanently deletes your account and tracker data. This action cannot be undone. Enter your password to confirm.</p>
+    <input type="password" id="deleteAccountPassword" autocomplete="current-password" placeholder="Your password" aria-label="Your password">
+    <p class="auth-error" id="deleteAccountError" aria-live="polite"></p>
+    <div class="modal-buttons">
+      <button class="cancel" id="cancelAccountDelete" type="button">Cancel</button>
+      <button class="danger-confirm" id="confirmAccountDelete" type="button">Delete account</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="installGuideModal" role="dialog" aria-modal="true" aria-labelledby="installGuideTitle">
+  <div class="modal-content">
+    <h2 id="installGuideTitle">Install Office Days Tracker</h2>
+    <p class="install-instructions" id="installGuideText"></p>
+    <div class="modal-buttons">
+      <button class="confirm" id="dismissInstallGuide" type="button">Got it</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <h2 id="modalTitle">Confirm Action</h2>
+    <p id="modalMessage">Are you sure?</p>
+    <input type="number" id="modalInput" style="display:none" min="1" max="365">
+    <div class="modal-buttons">
+      <button class="cancel" onclick="closeModal()">Cancel</button>
+      <button class="confirm" onclick="confirmAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept=".json">
+<div class="toast" id="toast" role="status"></div>
+<div class="build-watermark">Build v26.10.03.2</div>
+
+<script>
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+let authStateResolved=false;
+const db=firebase.firestore();
+const trackerCollection="officedaystracker";
+// Admin access is managed in Firestore at appConfig/admin.
+// Document format: { mobiles: ["9876543210"] }
+let adminMobiles=[];
+let adminRows=[];
+let adminYear=new Date().getFullYear();
+let authMode="login";
+let currentUserName="";
+const phoneEmail=mobile=>`${mobile}@office-days-tracker.local`;
+
+const KEY_DATA="officeDaysTracker_v1";
+const KEY_TARGET="officeDaysTrackerTarget";
+const KEY_THEME="officeDaysTrackerTheme";
+const KEY_MONTHLY_STATE="officeDaysTrackerMonthlyExpanded";
+const KEY_PENDING_SYNC="officeDaysTrackerPendingSync";
+let data=JSON.parse(localStorage.getItem(KEY_DATA)||"{}");
+let quarterTargets=JSON.parse(localStorage.getItem(KEY_TARGET)||"{}");
+if(!quarterTargets||typeof quarterTargets!=="object"||Array.isArray(quarterTargets))quarterTargets={};
+let isDarkMode=localStorage.getItem(KEY_THEME)==="dark";
+let isMonthlyExpanded=localStorage.getItem(KEY_MONTHLY_STATE)!=="false";
+let view=new Date(); view.setDate(1);
+let isQuarterView=false;
+const $=id=>document.getElementById(id);
+let pendingAction=null;
+let editingTarget=false;
+let previousData=null;
+let toastTimer=null;
+let selectedAdminDateMobile="";
+const selectedAdminMobiles=new Set();
+
+function rememberData(){
+  previousData={...data};
+  $("undo").style.display="inline-block";
+}
+
+function undoLastChange(){
+  if(!previousData)return;
+  data=previousData;
+  previousData=null;
+  $("undo").style.display="none";
+  save();
+  render();
+  showToast("Last change undone");
+}
+
+function showToast(message){
+  const toast=$("toast");
+  toast.textContent=message;
+  toast.classList.add("visible");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>toast.classList.remove("visible"),2600);
+}
+
+function setSaveStatus(message){
+  $("saveStatus").textContent=message;
+}
+
+function setAuthMode(mode){
+  authMode=mode;
+  $("authSubtitle").textContent=mode==="login"?"Sign in to continue":"Create your account";
+  $("authSubmit").textContent=mode==="login"?"Login":"Sign up";
+  $("authSwitch").textContent=mode==="login"?"New user? Sign up":"Already have an account? Login";
+  $("forgotPassword").style.display=mode==="login"?"block":"none";
+  $("nameFieldGroup").style.display=mode==="login"?"none":"block";
+  $("authName").required=mode!=="login";
+  $("authError").textContent="";
+}
+
+setAuthMode("login");
+
+async function ensureTrackerProfile(user,mobile,name=""){
+  const profileRef=db.collection(trackerCollection).doc(user.uid);
+  const snapshot=await profileRef.get();
+  if(!snapshot.exists){
+    await profileRef.set({
+      uid:user.uid,
+      name,
+      mobile,
+      data:{},
+      quarterTargets:{},
+      quarterTarget:24,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }else if(!snapshot.data().mobile||name&&snapshot.data().name!==name){
+    await profileRef.set({
+      uid:user.uid,
+      ...(name?{name}:{}),
+      mobile
+    },{merge:true});
+  }
+}
+
+function isAdmin(user){
+  const mobile=(user&&user.email||"").split("@")[0];
+  return adminMobiles.includes(mobile);
+}
+
+async function loadAdminConfig(){
+  try{
+    const snapshot=await db.collection("appConfig").doc("admin").get();
+    const config=snapshot.exists?snapshot.data():{};
+    adminMobiles=Array.isArray(config.mobiles)
+      ? config.mobiles.map(String).filter(mobile=>/^\d{10}$/.test(mobile))
+      : [];
+  }catch(error){
+    adminMobiles=[];
+    console.error("Unable to load admin configuration:",error);
+  }
+}
+
+function escapeHtml(value){
+  return String(value??"").replace(/[&<>"']/g,character=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[character]));
+}
+
+function formatAdminDate(value){
+  if(!value)return "—";
+  const date=value.toDate?value.toDate():new Date(value);
+  return isNaN(date)?"—":date.toLocaleString();
+}
+
+function adminQuarterStats(savedData,year,quarterNumber){
+  const [start,end]=quarterRange(year,quarterNumber);
+  let marked=0;
+  for(let date=new Date(start);date<=end;date.setDate(date.getDate()+1)){
+    if(savedData[key(date)])marked++;
+  }
+  return marked;
+}
+
+function adminCell(target,marked){
+  const percent=target?Math.min(100,Math.round(marked/target*100)):0;
+  return `<td class="admin-quarter"><span class="admin-marked">${target} target / ${marked} marked</span><span class="admin-progress"><i style="width:${percent}%"></i></span></td>`;
+}
+
+function renderAdminRows(){
+  $("adminActivityTitle").textContent=`${adminYear} User In Office Details`;
+  const search=$("adminSearch").value.trim().toLowerCase();
+  const rows=adminRows.filter(row=>`${row.name} ${row.mobile}`.toLowerCase().includes(search));
+  $("adminRows").innerHTML=rows.map(row=>`<tr><td class="admin-select-cell"><input class="admin-select" type="checkbox" data-mobile="${escapeHtml(row.mobile)}" aria-label="Select ${escapeHtml(row.name||row.mobile)} for export" ${selectedAdminMobiles.has(row.mobile)?"checked":""}></td><td class="admin-user">${escapeHtml(row.name||"—")}</td><td class="admin-user">${escapeHtml(row.mobile)}</td><td class="admin-marked">${row.yearDays}</td>${adminCell(row.targets[0],row.quarters[0])}${adminCell(row.targets[1],row.quarters[1])}${adminCell(row.targets[2],row.quarters[2])}${adminCell(row.targets[3],row.quarters[3])}<td>${escapeHtml(formatAdminDate(row.updatedAt))}</td><td><button class="admin-view-dates" data-view-mobile="${escapeHtml(row.mobile)}">View dates</button></td></tr>`).join("");
+  $("adminEmpty").style.display=rows.length?"none":"block";
+}
+
+function renderAdminDateDetails(row){
+  const details=$("adminDateDetails");
+  if(!row){
+    details.classList.remove("visible");
+    return;
+  }
+  selectedAdminDateMobile=row.mobile;
+  $("adminDateTitle").textContent=`${row.name||row.mobile} — ${adminYear} office dates`;
+  $("adminDateSummary").textContent=`${row.dates.length} office day${row.dates.length===1?"":"s"} marked in ${adminYear}`;
+  $("adminDateList").innerHTML=row.dates.length
+    ? row.dates.map(date=>`<li>${escapeHtml(new Date(`${date}T00:00:00`).toLocaleDateString(undefined,{weekday:"short",year:"numeric",month:"short",day:"numeric"}))}</li>`).join("")
+    : "<li>No office dates marked</li>";
+  details.classList.add("visible");
+}
+
+function csvValue(value){
+  return `"${String(value??"").replace(/"/g,'""')}"`;
+}
+
+function exportAdminCsv(rows,filename){
+  if(!rows.length){
+    alert("No user data is available to export.");
+    return;
+  }
+  const year=adminYear;
+  const header=["Name","Mobile number",`Days in ${year}`,"Q1 target","Q1 marked","Q2 target","Q2 marked","Q3 target","Q3 marked","Q4 target","Q4 marked","Last updated"];
+  const lines=[header, ...rows.map(row=>[
+    row.name,row.mobile,row.yearDays,
+    row.targets[0],row.quarters[0],
+    row.targets[1],row.quarters[1],
+    row.targets[2],row.quarters[2],
+    row.targets[3],row.quarters[3],
+    formatAdminDate(row.updatedAt)
+  ])].map(line=>line.map(csvValue).join(","));
+  const blob=new Blob([lines.join("\\r\\n")],{type:"text/csv;charset=utf-8"});
+  const link=document.createElement("a");
+  link.href=URL.createObjectURL(blob);
+  link.download=filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function exportSelectedAdminUsers(){
+  const rows=adminRows.filter(row=>selectedAdminMobiles.has(row.mobile));
+  if(!rows.length){
+    alert("Select at least one user to export.");
+    return;
+  }
+  exportAdminCsv(rows,`office-days-selected-users-${adminYear}.csv`);
+}
+
+async function loadAdminDashboard(){
+  const snapshot=await db.collection(trackerCollection).get();
+  adminRows=snapshot.docs.map(doc=>{
+    const saved=doc.data()||{};
+    const savedData=saved.data&&typeof saved.data==="object"?saved.data:{};
+    const savedTargets=saved.quarterTargets&&typeof saved.quarterTargets==="object"?saved.quarterTargets:{};
+    const legacyTarget=Number.isInteger(saved.quarterTarget)&&saved.quarterTarget>0?saved.quarterTarget:24;
+    const targets=[1,2,3,4].map(q=>Number.isInteger(savedTargets[`${adminYear}-Q${q}`])&&savedTargets[`${adminYear}-Q${q}`]>0?savedTargets[`${adminYear}-Q${q}`]:legacyTarget);
+    const yearDays=Object.keys(savedData).filter(date=>savedData[date]&&date.startsWith(`${adminYear}-`)).length;
+    return {name:saved.name||"",mobile:saved.mobile||"Unknown",yearDays,days:Object.keys(savedData).filter(key=>savedData[key]).length,dates:Object.keys(savedData).filter(date=>savedData[date]&&date.startsWith(`${adminYear}-`)).sort(),targets,quarters:[1,2,3,4].map(q=>adminQuarterStats(savedData,adminYear,q)),updatedAt:saved.updatedAt};
+  }).sort((a,b)=>a.mobile.localeCompare(b.mobile));
+  renderAdminRows();
+  if(selectedAdminDateMobile){
+    renderAdminDateDetails(adminRows.find(row=>row.mobile===selectedAdminDateMobile));
+  }
+}
+
+function populateAdminYears(){
+  const select=$("adminYear");
+  const currentYear=new Date().getFullYear();
+  select.innerHTML="";
+  for(let year=currentYear-5;year<=currentYear+5;year++){
+    const option=document.createElement("option");
+    option.value=year;
+    option.textContent=year;
+    select.appendChild(option);
+  }
+  select.value=adminYear;
+}
+
+function showAdminDashboard(){
+  if(!isAdmin(auth.currentUser))return;
+  $("appContent").style.display="none";
+  $("adminScreen").style.display="block";
+  populateAdminYears();
+  loadAdminDashboard().catch(error=>{
+    console.error("Unable to load admin dashboard:",error);
+    $("adminRows").innerHTML="";
+    renderAdminDateDetails(null);
+    $("adminEmpty").textContent="Unable to load user data. Check your Firestore rules.";
+    $("adminEmpty").style.display="block";
+  });
+}
+
+function hideAdminDashboard(){
+  $("adminScreen").style.display="none";
+  if(auth.currentUser)$("appContent").style.display="block";
+}
+
+function showAuthError(error){
+  const messages={
+    "auth/user-not-found":"No account found for this mobile number. Please sign up first.",
+    "auth/wrong-password":"Incorrect mobile number or password.",
+    "auth/invalid-credential":"Incorrect mobile number or password.",
+    "auth/email-already-in-use":"This mobile number already has a Firebase Authentication account. Please switch to Login; signing in will create or restore its tracker profile in Firestore.",
+    "auth/weak-password":"Password must contain at least 6 characters.",
+    "auth/operation-not-allowed":"Email/Password sign-in is disabled in Firebase Authentication. Enable it under Authentication → Sign-in method.",
+    "auth/admin-restricted-operation":"Email/Password sign-in is disabled or restricted for this Firebase project. Enable it under Authentication → Sign-in method.",
+    "auth/configuration-not-found":"Firebase Authentication is not configured. Enable Email/Password sign-in in Firebase Console and verify the project configuration.",
+    "auth/invalid-api-key":"The Firebase API key is invalid. Check the Firebase web app configuration.",
+    "auth/network-request-failed":"Network error. Check your connection and try again."
+  };
+  $("authError").textContent=messages[error.code]||error.message||"Authentication failed. Please try again.";
+}
+
+$("authSwitch").onclick=()=>setAuthMode(authMode==="login"?"signup":"login");
+$("forgotPassword").onclick=e=>{
+  const mobile=$("authMobile").value.trim();
+  const message=mobile
+    ? `Hi KCB, I forgot my Office Days Tracker password. My registered mobile number is ${mobile}.`
+    : "Hi KCB, I forgot my Office Days Tracker password. Please help me reset it.";
+  e.currentTarget.href=`https://wa.me/918260147054?text=${encodeURIComponent(message)}`;
+};
+$("authForm").onsubmit=async e=>{
+  e.preventDefault();
+  const name=$("authName").value.trim();
+  const mobile=$("authMobile").value.trim();
+  const password=$("authPassword").value;
+  const submit=$("authSubmit");
+  $("authError").textContent="";
+  if(authMode==="signup"){
+    if(!name){
+      $("authError").textContent="Please enter your name.";
+      return;
+    }
+    if(name.length<2||name.length>80){
+      $("authError").textContent="Name must be between 2 and 80 characters.";
+      return;
+    }
+    if(!/^[\p{L}][\p{L}\s.'-]*$/u.test(name)||!/[\p{L}]/u.test(name)){
+      $("authError").textContent="Name can contain letters, spaces, apostrophes, periods, and hyphens only.";
+      return;
+    }
+  }
+  if(!/^\d+$/.test(mobile)){
+    $("authError").textContent="Mobile number must contain digits only.";
+    return;
+  }
+  if(mobile.length!==10){
+    $("authError").textContent="Mobile number must contain exactly 10 digits.";
+    return;
+  }
+  if(!/^[6-9]/.test(mobile)){
+    $("authError").textContent="Mobile number must start with 6, 7, 8, or 9.";
+    return;
+  }
+  submit.disabled=true;
+  submit.textContent=authMode==="login"?"Logging in…":"Creating account…";
+  try{
+    let credential;
+    if(authMode==="login"){
+      credential=await auth.signInWithEmailAndPassword(phoneEmail(mobile),password);
+    }else{
+      credential=await auth.createUserWithEmailAndPassword(phoneEmail(mobile),password);
+    }
+    await ensureTrackerProfile(credential.user,mobile,name);
+  }catch(error){
+    showAuthError(error);
+  }finally{
+    submit.disabled=false;
+    submit.textContent=authMode==="login"?"Login":"Sign up";
+  }
+};
+
+function openNameEditor(){
+  $("editNameInput").value=currentUserName;
+  $("editNameError").textContent="";
+  $("editNameModal").classList.add("active");
+  $("editNameInput").focus();
+  $("editNameInput").select();
+}
+
+function closeNameEditor(){
+  $("editNameModal").classList.remove("active");
+}
+
+function openDeleteAccountDialog(){
+  $("deleteAccountPassword").value="";
+  $("deleteAccountError").textContent="";
+  $("deleteAccountModal").classList.add("active");
+  $("deleteAccountPassword").focus();
+}
+
+function closeDeleteAccountDialog(){
+  $("deleteAccountModal").classList.remove("active");
+  $("deleteAccountPassword").value="";
+  $("deleteAccountError").textContent="";
+}
+
+function showInstallGuide(user){
+  if(!user||window.matchMedia("(display-mode: standalone)").matches||navigator.standalone)return;
+  const seenKey=`officeDaysTrackerInstallGuideSeen_${user.uid}`;
+  if(localStorage.getItem(seenKey)==="true")return;
+
+  const ua=navigator.userAgent;
+  const isIOS=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const isAndroid=/Android/i.test(ua);
+  let instructions;
+  if(isIOS){
+    instructions='<strong>On iPhone or iPad:</strong> tap the Share button in Safari, scroll the menu, then tap <strong>Add to Home Screen</strong> and choose <strong>Add</strong>.';
+  }else if(isAndroid){
+    instructions='<strong>On Android:</strong> open your browser’s ⋮ menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>, then confirm.';
+  }else{
+    instructions='<strong>On a computer:</strong> use the install icon in the browser’s address bar, or open the browser menu and choose <strong>Install app</strong>.';
+  }
+  instructions+='<span class="install-tip">Once installed, open it from your home screen or app launcher for an app-like view without the browser address bar. Menu wording can vary by browser.</span>';
+  $("installGuideText").innerHTML=instructions;
+  $("installGuideModal").dataset.seenKey=seenKey;
+  $("installGuideModal").classList.add("active");
+}
+
+function dismissInstallGuide(){
+  const modal=$("installGuideModal");
+  if(modal.dataset.seenKey)localStorage.setItem(modal.dataset.seenKey,"true");
+  modal.classList.remove("active");
+}
+
+async function deleteCurrentAccount(){
+  const user=auth.currentUser;
+  const password=$("deleteAccountPassword").value;
+  const button=$("confirmAccountDelete");
+  const errorText=$("deleteAccountError");
+  errorText.textContent="";
+  if(!user){
+    errorText.textContent="Please sign in again before deleting your account.";
+    return;
+  }
+  if(!password){
+    errorText.textContent="Enter your password to confirm account deletion.";
+    return;
+  }
+  button.disabled=true;
+  button.textContent="Deleting…";
+  try{
+    await user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email,password));
+    await saveQueue;
+    await db.collection(trackerCollection).doc(user.uid).delete();
+    await user.delete();
+    localStorage.removeItem(KEY_DATA);
+    localStorage.removeItem(KEY_TARGET);
+    localStorage.removeItem(KEY_PENDING_SYNC);
+    closeDeleteAccountDialog();
+  }catch(error){
+    console.error("Unable to delete account:",error);
+    errorText.textContent=["auth/wrong-password","auth/invalid-credential","auth/invalid-login-credentials"].includes(error.code)
+      ? "The password is incorrect. Please try again."
+      : error.code==="auth/too-many-requests"
+        ? "Too many attempts. Please wait and try again."
+        : "Could not delete the account. Check your connection and try again.";
+  }finally{
+    button.disabled=false;
+    button.textContent="Delete account";
+  }
+}
+
+async function saveEditedName(){
+  const name=$("editNameInput").value.trim();
+  const saveButton=$("saveNameEdit");
+  $("editNameError").textContent="";
+  if(name.length<2||name.length>80){
+    $("editNameError").textContent="Name must be between 2 and 80 characters.";
+    return;
+  }
+  if(!/^[\p{L}][\p{L}\s.'-]*$/u.test(name)){
+    $("editNameError").textContent="Name can contain letters, spaces, apostrophes, periods, and hyphens only.";
+    return;
+  }
+  if(!auth.currentUser){
+    $("editNameError").textContent="Please sign in again to edit your name.";
+    return;
+  }
+  saveButton.disabled=true;
+  saveButton.textContent="Saving…";
+  try{
+    await db.collection(trackerCollection).doc(auth.currentUser.uid).set({
+      name,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+    currentUserName=name;
+    $("welcomeMessage").textContent=`Welcome, ${name}!`;
+    closeNameEditor();
+    showToast("Name updated successfully");
+  }catch(error){
+    console.error("Unable to update profile name:",error);
+    $("editNameError").textContent="Could not save your name. Please try again.";
+  }finally{
+    saveButton.disabled=false;
+    saveButton.textContent="Save name";
+  }
+}
+
+$("editNameButton").onclick=openNameEditor;
+$("dismissInstallGuide").onclick=dismissInstallGuide;
+$("cancelNameEdit").onclick=closeNameEditor;
+$("saveNameEdit").onclick=saveEditedName;
+$("editNameInput").onkeydown=event=>{
+  if(event.key==="Enter"){
+    event.preventDefault();
+    saveEditedName();
+  }
+};
+$("editNameModal").onclick=event=>{
+  if(event.target===$("editNameModal"))closeNameEditor();
+};
+$("deleteAccountButton").onclick=openDeleteAccountDialog;
+$("cancelAccountDelete").onclick=closeDeleteAccountDialog;
+$("confirmAccountDelete").onclick=deleteCurrentAccount;
+$("deleteAccountPassword").onkeydown=event=>{
+  if(event.key==="Enter")deleteCurrentAccount();
+};
+$("deleteAccountModal").onclick=event=>{
+  if(event.target===$("deleteAccountModal"))closeDeleteAccountDialog();
+};
+$("logout").onclick=()=>auth.signOut();
+$("undo").onclick=undoLastChange;
+$("adminButton").onclick=showAdminDashboard;
+$("exportAdminSelected").onclick=exportSelectedAdminUsers;
+$("selectAllAdmin").onclick=()=>{
+  const search=$("adminSearch").value.trim().toLowerCase();
+  adminRows.filter(row=>`${row.name} ${row.mobile}`.toLowerCase().includes(search)).forEach(row=>selectedAdminMobiles.add(row.mobile));
+  renderAdminRows();
+};
+$("clearAdminSelection").onclick=()=>{
+  selectedAdminMobiles.clear();
+  renderAdminRows();
+};
+$("adminRows").onclick=e=>{
+  if(e.target.classList.contains("admin-select")){
+    const mobile=e.target.dataset.mobile;
+    if(e.target.checked)selectedAdminMobiles.add(mobile);
+    else selectedAdminMobiles.delete(mobile);
+    return;
+  }
+  if(e.target.classList.contains("admin-view-dates")){
+    const row=adminRows.find(item=>item.mobile===e.target.dataset.viewMobile);
+    renderAdminDateDetails(row);
+  }
+};
+$("closeAdmin").onclick=hideAdminDashboard;
+$("adminSearch").oninput=renderAdminRows;
+$("adminYear").onchange=()=>{
+  adminYear=Number($("adminYear").value);
+  loadAdminDashboard().catch(error=>{
+    console.error("Unable to load selected admin year:",error);
+    adminRows=[];
+    renderAdminRows();
+    $("adminEmpty").textContent="Unable to load user data.";
+    $("adminEmpty").style.display="block";
+  });
+};
+$("exportAdminAll").onclick=()=>exportAdminCsv(adminRows,`office-days-dashboard-${adminYear}.csv`);
+auth.onAuthStateChanged(async user=>{
+  authStateResolved=true;
+  $("authScreen").style.display=user?"none":"flex";
+  $("appContent").style.display=user?"block":"none";
+  $("adminButton").classList.remove("visible");
+  adminMobiles=[];
+  if(!user)return;
+  const signedInMobile=(user.email||"").split("@")[0];
+  try{
+    await ensureTrackerProfile(user,signedInMobile);
+  }catch(error){
+    console.error("Unable to ensure tracker profile:",error);
+  }
+  await loadAdminConfig();
+  if(isAdmin(user))$("adminButton").classList.add("visible");
+  const profileSnapshot=await db.collection(trackerCollection).doc(user.uid).get();
+  currentUserName=profileSnapshot.exists?profileSnapshot.data().name||"":"";
+  $("welcomeMessage").textContent=`Welcome${currentUserName?`, ${currentUserName}`:""}!`;
+  const hasPendingSync=localStorage.getItem(KEY_PENDING_SYNC)==="true";
+  if(!hasPendingSync){
+    data={};
+          quarterTargets={};
+  }
+  try{
+    const snapshot=await db.collection(trackerCollection).doc(user.uid).get();
+    if(snapshot.exists&&!hasPendingSync){
+      const saved=snapshot.data();
+      if(saved.data&&typeof saved.data==="object")data=saved.data;
+      if(saved.quarterTargets&&typeof saved.quarterTargets==="object")quarterTargets=saved.quarterTargets;
+      else if(Number.isInteger(saved.quarterTarget)&&saved.quarterTarget>0)quarterTargets={};
+      localStorage.setItem(KEY_DATA,JSON.stringify(data));
+      localStorage.setItem(KEY_TARGET,JSON.stringify(quarterTargets));
+    }
+    if(hasPendingSync)await save();
+  }catch(error){
+    console.error("Unable to load tracker data from Firebase:",error);
+  }
+  render();
+  showInstallGuide(user);
+});
+
+if(isDarkMode) document.body.classList.add("dark-mode");
+
+let saveQueue=Promise.resolve();
+
+function targetKey(year,q){return `${year}-Q${q}`}
+function getQuarterTarget(year,q){return Number.isInteger(quarterTargets[targetKey(year,q)])&&quarterTargets[targetKey(year,q)]>0?quarterTargets[targetKey(year,q)]:24}
+function save(){
+  localStorage.setItem(KEY_DATA,JSON.stringify(data));
+  setSaveStatus(auth.currentUser?"Saving…":"Saved locally");
+  localStorage.setItem(KEY_TARGET,JSON.stringify(quarterTargets));
+  localStorage.setItem(KEY_PENDING_SYNC,"true");
+
+  const user=auth.currentUser;
+  if(!user)return saveQueue;
+
+  // Queue writes so an older request cannot finish after a newer deselection.
+  const snapshot={...data};
+  const targets={...quarterTargets};
+  saveQueue=saveQueue.then(async()=>{
+    try{
+      // Replace the complete data map so deleted dates are removed in Firestore.
+      await db.collection(trackerCollection).doc(user.uid).set({
+        uid:user.uid,
+        name:currentUserName,
+        mobile:(user.email||"").split("@")[0],
+        data:snapshot,
+        quarterTargets:targets,
+        quarterTarget:24,
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      if(JSON.stringify(snapshot)===JSON.stringify(data)&&JSON.stringify(targets)===JSON.stringify(quarterTargets)){
+        localStorage.removeItem(KEY_PENDING_SYNC);
+        setSaveStatus("Saved");
+      }
+    }catch(error){
+      setSaveStatus("Sync failed — changes kept locally");
+      showToast("Unable to sync changes. They will be retried later.");
+      console.error("Unable to save tracker data to Firebase:",error);
+    }
+  });
+  return saveQueue;
+}
+function saveTarget(){
+  save();
+}
+window.addEventListener("online",()=>{
+  if(auth.currentUser&&localStorage.getItem(KEY_PENDING_SYNC)==="true")save();
+});
+
+function saveTheme(){localStorage.setItem(KEY_THEME,isDarkMode?"dark":"light");}
+function saveMonthlyState(){localStorage.setItem(KEY_MONTHLY_STATE,isMonthlyExpanded?"true":"false");}
+function key(d){
+  const year=d.getFullYear();
+  const month=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return `${year}-${month}-${day}`;
+}
+function quarter(m){return Math.floor(m/3)+1}
+function quarterRange(y,q){return [new Date(y,(q-1)*3,1),new Date(y,q*3,0)]}
+function daysInQuarter(y,q){let [a,b]=quarterRange(y,q), n=0;for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1)) if(data[key(d)])n++;return n}
+function daysInMonth(y,m){let d=new Date(y,m,1),e=new Date(y,m+1,0),n=0;for(;d<=e;d.setDate(d.getDate()+1))if(data[key(d)])n++;return n}
+
+function toggleMonthly(){
+  isMonthlyExpanded=!isMonthlyExpanded;
+  saveMonthlyState();
+  updateMonthlyDisplay();
+}
+
+function updateMonthlyDisplay(){
+  const grid=$("monthlyGrid");
+  const toggle=$("monthlyToggle");
+  if(isMonthlyExpanded){
+    grid.classList.remove("hidden");
+    toggle.classList.remove("collapsed");
+    toggle.classList.add("expanded");
+  }else{
+    grid.classList.add("hidden");
+    toggle.classList.remove("expanded");
+    toggle.classList.add("collapsed");
+  }
+}
+
+function showModal(title,message,action,isTargetEdit=false){
+  $("modalTitle").textContent=title;
+  $("modalMessage").textContent=message;
+  const input=$("modalInput");
+  if(isTargetEdit){
+    input.style.display="block";
+    input.value=getQuarterTarget(view.getFullYear(),quarter(view.getMonth())).toString();
+    input.focus();
+    setTimeout(()=>input.select(),0);
+  }else{
+    input.style.display="none";
+  }
+  editingTarget=isTargetEdit;
+  pendingAction=action;
+  $("confirmModal").classList.add("active");
+}
+
+function closeModal(){
+  $("confirmModal").classList.remove("active");
+  pendingAction=null;
+  editingTarget=false;
+}
+
+function confirmAction(){
+  if(editingTarget){
+    const newTarget=parseInt($("modalInput").value);
+    if(isNaN(newTarget)||newTarget<1||newTarget>365){
+      alert("Please enter a valid number between 1 and 365");
+      return;
+    }
+    quarterTargets[targetKey(view.getFullYear(),quarter(view.getMonth()))]=newTarget;
+    saveTarget();
+    render();
+    closeModal();
+  }else if(pendingAction){
+    pendingAction();
+    closeModal();
+  }
+}
+
+function renderCalendar(){
+  const y=view.getFullYear(), m=view.getMonth(), q=quarter(m);
+  let startDate,endDate;
+  
+  if(isQuarterView){
+    [startDate,endDate]=quarterRange(y,q);
+  }else{
+    startDate=new Date(y,m,1);
+    endDate=new Date(y,m+1,0);
+  }
+  
+  const cal=$("calendar");cal.innerHTML="";
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(x=>{let e=document.createElement("div");e.className="dow";e.textContent=x;cal.appendChild(e)});
+  
+  const firstDay=new Date(startDate);
+  for(let i=0;i<firstDay.getDay();i++){let e=document.createElement("div");e.className="day empty";cal.appendChild(e)}
+  
+  for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
+    let k=key(d), e=document.createElement("div");
+    e.className="day"+(d.getDay()==0||d.getDay()==6?" weekend ":"")+(data[k]?" office ":"")+(key(d)==key(new Date())?" today":"");
+    e.tabIndex=0;
+    e.setAttribute("role","button");
+    e.setAttribute("aria-pressed",data[k]?"true":"false");
+    e.setAttribute("aria-label",`${d.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"})}${data[k]?", office day":""}`);
+    e.innerHTML='<div class="num">'+d.getDate()+'</div>'+(data[k]?'<div class="tag" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V5l8-3v19M12 9h8v12M2 21h20"/><path d="M7 7h2m-2 4h2m-2 4h2m7-3h2m-2 4h2"/></svg></div>':'');
+    const toggleDay=()=>{
+      const dateStr=d.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+      const isMarked=!!data[k];
+      const action=isMarked?"Mark as non-office day":"Mark as office day";
+      showModal("Confirm Date Selection",`${action}?`,()=>{
+        rememberData();
+        data[k]=!data[k];
+        if(!data[k])delete data[k];
+        save();
+        render();
+      });
+    };
+    e.onclick=toggleDay;
+    e.onkeydown=event=>{
+      if(event.key==="Enter"||event.key===" "){
+        event.preventDefault();
+        toggleDay();
+      }
+    };
+    cal.appendChild(e);
+  }
+}
+
+function render(){
+  const y=view.getFullYear(), m=view.getMonth(), q=quarter(m);
+  
+  if(isQuarterView){
+    $("monthTitle").textContent="Q"+q+" "+y;
+  }else{
+    $("monthTitle").textContent=view.toLocaleString(undefined,{month:"long",year:"numeric"});
+  }
+  
+  $("year").value=y;
+  
+  renderCalendar();
+  
+  const qcount=daysInQuarter(y,q);
+  const currentTarget=getQuarterTarget(y,q);
+  $("qdays").textContent=qcount;
+  $("quarterTargetLabel").textContent=`Q${q} ${y} target`;
+  const percent=Math.min(100,Math.round((qcount/currentTarget)*100));
+  $("progressFill").style.width=percent+"%";
+  $("progressText").textContent=percent+"%";
+  $("quarterTarget").textContent=currentTarget;
+  $("remaining").textContent=Math.max(0,currentTarget-qcount);
+  
+  let total=0;Object.keys(data).forEach(k=>{if(k.startsWith(y+"-"))total++});
+  $("ydays").textContent=total;
+  
+  const monthlyGrid=$("monthlyGrid");
+  monthlyGrid.innerHTML="";
+  for(let i=0;i<12;i++){
+    const cnt=daysInMonth(y,i);
+    const div=document.createElement("div");
+    div.className="month-item";
+    div.innerHTML='<span class="month-num">'+cnt+'</span><span class="month-label">'+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i]+'</span>';
+    monthlyGrid.appendChild(div);
+  }
+  
+  updateMonthlyDisplay();
+}
+
+for(let y=2025;y<=2035;y++){let o=document.createElement("option");o.value=y;o.textContent=y;$("year").appendChild(o)}
+
+$("year").onchange=()=>{view.setFullYear(+$("year").value);render()};
+$("prev").onclick=()=>{view.setFullYear(view.getFullYear()-1);render()};
+$("next").onclick=()=>{view.setFullYear(view.getFullYear()+1);render()};
+$("prevMonth").onclick=()=>{view.setMonth(view.getMonth()-1);render()};
+$("nextMonth").onclick=()=>{view.setMonth(view.getMonth()+1);render()};
+
+$("viewMonth").onclick=()=>{
+  isQuarterView=false;
+  $("viewMonth").classList.add("active");
+  $("viewQuarter").classList.remove("active");
+  render();
+};
+
+$("viewQuarter").onclick=()=>{
+  isQuarterView=true;
+  $("viewQuarter").classList.add("active");
+  $("viewMonth").classList.remove("active");
+  render();
+};
+
+$("themeToggle").onclick=()=>{
+  isDarkMode=!isDarkMode;
+  document.body.classList.toggle("dark-mode");
+  saveTheme();
+};
+
+$("monthlyHeader").onclick=toggleMonthly;
+
+$("targetCard").onclick=()=>{
+  showModal("Edit Quarter Target","Enter the number of office days target for this quarter:",()=>{},true);
+};
+
+$("clearQuarter").onclick=()=>{
+  showModal("Clear Quarter","Are you sure you want to clear all selected office days in this quarter?",()=>{
+    const y=view.getFullYear(),q=quarter(view.getMonth()),[a,b]=quarterRange(y,q);
+    rememberData();
+    for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1))delete data[key(d)];
+    save();render();
+    showToast("Quarter cleared");
+  });
+};
+
+$("export").onclick=()=>{
+  const exportData={data,quarterTargets};
+  const blob=new Blob([JSON.stringify(exportData,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="office-days.json";a.click();URL.revokeObjectURL(a.href);
+};
+
+$("import").onclick=()=>{$("fileInput").click()};
+
+$("fileInput").onchange=(e)=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(evt)=>{
+    try{
+      const imported=JSON.parse(evt.target.result);
+      if(typeof imported!=="object"||imported===null){
+        alert("Invalid file format. Please use the exported JSON file.");
+        return;
+      }
+      const importData=imported.data||imported;
+      const importTarget=imported.quarterTarget||24;
+      const isValidDateKey=date=>{
+        const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+        if(!match)return false;
+        const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);
+        const parsed=new Date(year,month-1,day);
+        return parsed.getFullYear()===year&&parsed.getMonth()===month-1&&parsed.getDate()===day;
+      };
+      const validDates=Object.keys(importData).filter(date=>isValidDateKey(date)&&importData[date]);
+      if(typeof importData!=="object"||Array.isArray(importData)||validDates.length!==Object.keys(importData).length){
+        alert("Invalid file format. Dates must use YYYY-MM-DD format.");
+        return;
+      }
+      showModal("Import Data",`This will replace your current data with ${validDates.length} selected day(s). Continue?`,()=>{
+        rememberData();
+        data=Object.fromEntries(validDates.map(date=>[date,true]));
+        quarterTargets=imported.quarterTargets||{};
+        if(imported.quarterTarget)quarterTargets[targetKey(view.getFullYear(),quarter(view.getMonth()))]=importTarget;
+        save();
+        render();
+        showToast(`Imported ${validDates.length} selected day(s)`);
+      });
+    }catch(err){
+      alert("Error reading file. Please make sure it's a valid JSON file.");
+    }
+  };
+  reader.readAsText(file);
+  $("fileInput").value="";
+};
+
+const whatsappWidget=document.querySelector(".whatsapp-widget");
+function updateWhatsAppPosition(){
+  const page=document.documentElement;
+  const hasScrollablePage=page.scrollHeight>window.innerHeight+1;
+  const isAtBottom=window.scrollY+window.innerHeight>=page.scrollHeight-40;
+  whatsappWidget.classList.toggle("at-page-bottom",hasScrollablePage&&isAtBottom);
+}
+window.addEventListener("scroll",updateWhatsAppPosition,{passive:true});
+window.addEventListener("resize",updateWhatsAppPosition);
+updateWhatsAppPosition();
+
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape"){
+    closeModal();
+    closeNameEditor();
+    closeDeleteAccountDialog();
+    dismissInstallGuide();
+  }
+  if(e.key==="Enter"&&editingTarget)confirmAction();
+});
+
+$("confirmModal").addEventListener("click",(e)=>{
+  if(e.target===$("confirmModal"))closeModal();
+});
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(error=>console.error("Unable to register app service worker:",error)));
+}
+
+render();
+</script>
+</body>
+</html>
