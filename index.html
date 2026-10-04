@@ -117,8 +117,6 @@ body.dark-mode .day .num{color:#e0e7ff}
 body.dark-mode .day.weekend .num{color:#718096}
 .day .tag{display:flex;align-items:center;justify-content:center;width:20px;height:22px;color:#0066cc;background:#e0f2fe;padding:2px;border-radius:4px;margin-top:auto;transition:all 0.3s}
 .day .tag svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.day.home{background:linear-gradient(135deg,#faf5ff 0%,#f3e8ff 100%);border-color:#9333ea;box-shadow:0 2px 8px rgba(147,51,234,.15)}
-body.dark-mode .day.home{background:linear-gradient(135deg,#342347 0%,#2a203a 100%)}
 body.dark-mode .day .tag{color:#60a5fa;background:rgba(96,165,250,0.2)}
 .note{margin-top:16px;font-size:13px;color:#64748b;padding:12px;background:#f8fafc;border-left:3px solid #0066cc;border-radius:6px;transition:all 0.3s}
 body.dark-mode .note{background:#2d3748;color:#cbd5e1;border-left-color:#60a5fa}
@@ -138,9 +136,9 @@ body.dark-mode .modal-content{background:#1a2332}
 body.dark-mode .modal-content h2{color:#e0e7ff}
 .modal-content p{margin:0 0 24px 0;font-size:14px;color:#64748b;line-height:1.6;transition:color 0.3s}
 body.dark-mode .modal-content p{color:#cbd5e1}
-.modal-content input,.modal-content select{width:100%;padding:10px 12px;font-size:14px;border:2px solid #e2e8f0;border-radius:8px;margin:0 0 24px 0;text-align:center;background:white;color:#0f172a;transition:all 0.3s}
-body.dark-mode .modal-content input,body.dark-mode .modal-content select{background:#2d3748;color:#e0e7ff;border-color:#4a5568}
-.modal-content input:focus,.modal-content select:focus{outline:none;border-color:#0066cc}
+.modal-content input{width:100%;padding:10px 12px;font-size:14px;border:2px solid #e2e8f0;border-radius:8px;margin:0 0 24px 0;text-align:center;background:white;color:#0f172a;transition:all 0.3s}
+body.dark-mode .modal-content input{background:#2d3748;color:#e0e7ff;border-color:#4a5568}
+.modal-content input:focus{outline:none;border-color:#0066cc}
 .modal-buttons{display:flex;gap:12px;justify-content:center}
 .modal-buttons button{border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .modal-buttons .confirm{background:#10b981;color:white;box-shadow:0 4px 12px rgba(16,185,129,0.3)}
@@ -289,6 +287,23 @@ body.dark-mode .whatsapp-tooltip{background:#1a2332;color:#e0e7ff}
   .monthly-grid{grid-template-columns:repeat(2,1fr)}
 }
 
+.office-location{margin-top:16px;padding:16px;border:1px solid #dbeafe;border-radius:12px;background:#f8fafc}
+.office-location h3{margin:0 0 6px;color:#0f172a;font-size:16px}
+.office-location p{margin:0 0 12px;color:#64748b;font-size:13px;line-height:1.5}
+.location-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:10px;align-items:end}
+.location-fields label{display:grid;gap:5px;color:#475569;font-size:12px;font-weight:700}
+.location-fields input{width:100%;min-width:0;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;background:white;color:#172033;font-size:14px}
+.location-fields button{border:0;border-radius:8px;padding:10px 12px;background:#0066cc;color:white;font-weight:700;cursor:pointer}
+.location-enable{display:flex;align-items:center;gap:8px;margin-top:12px;color:#334155;font-size:13px;font-weight:600}
+.location-enable input{width:17px;height:17px;accent-color:#0066cc}
+.location-status{margin-top:8px;color:#64748b;font-size:12px;line-height:1.5}
+body.dark-mode .office-location{background:#202c3d;border-color:#3b4c63}
+body.dark-mode .office-location h3,body.dark-mode .location-enable{color:#e0e7ff}
+body.dark-mode .office-location p,body.dark-mode .location-status{color:#cbd5e1}
+body.dark-mode .location-fields label{color:#cbd5e1}
+body.dark-mode .location-fields input{background:#2d3748;color:#e0e7ff;border-color:#4a5568}
+@media(max-width:600px){.location-fields{grid-template-columns:1fr 1fr}.location-fields button{grid-column:1/-1}}
+
 @media(max-width:600px){
   .app{padding:12px}
   .admin-button.visible{display:block!important;flex:1 1 100%;width:100%;min-width:0;order:5}
@@ -341,16 +356,6 @@ body.dark-mode .whatsapp-tooltip{background:#1a2332;color:#e0e7ff}
   .monthly-toggle{width:18px;height:18px;font-size:12px}
   .monthly-stats h4{font-size:11px}
 }
-
-.location-settings-form{display:grid;gap:10px;text-align:left;margin-bottom:18px}
-.location-settings-form label{font-size:12px;font-weight:700;color:#475569}
-body.dark-mode .location-settings-form label{color:#cbd5e1}
-.location-settings-form input{margin:0!important;text-align:left!important}
-.location-settings-note{font-size:12px;color:#64748b;line-height:1.5;text-align:left;margin:0 0 16px!important}
-body.dark-mode .location-settings-note{color:#cbd5e1}
-.location-auto-toggle{display:flex;align-items:flex-start;gap:9px;margin:0 0 12px;text-align:left;color:#475569;font-size:13px;line-height:1.4;cursor:pointer}
-.location-auto-toggle input{width:17px!important;height:17px;flex:0 0 17px;margin:0!important;accent-color:#0066cc}
-body.dark-mode .location-auto-toggle{color:#cbd5e1}
 
 /* Keep the admin dashboard inside the viewport; the wide data table scrolls only inside its card. */
 html,body{overflow-x:hidden}
@@ -463,7 +468,7 @@ html,body{overflow-x:hidden}
       <div class="value" id="remaining">24</div>
     </div>
     <div class="card">
-      <div class="label">Office days this year</div>
+      <div class="label">Year total</div>
       <div class="value" id="ydays">0</div>
       <div class="monthly-stats">
         <div class="monthly-header" id="monthlyHeader">
@@ -486,12 +491,15 @@ html,body{overflow-x:hidden}
       </div>
     </div>
     <div class="grid" id="calendar"></div>
-    <div class="note">💡 Tap/click a date to mark or unmark it as an office day. Only marked office days count toward your quarterly target. Weekends can also be marked.</div>
+    <div class="note">💡 Tap/click a date to mark or unmark an office day. Weekends are shown separately but can still be selected.</div>
+    <section class="office-location" aria-labelledby="officeLocationTitle">
+      <h3 id="officeLocationTitle">Automatic office-day marking</h3>
+      <p>Location is checked automatically while you are signed in. Today is marked when you are within 2,000 meters of any listed office.</p>
+      <div class="location-status" id="officeLocationStatus" role="status" aria-live="polite">Waiting for location access…</div>
+    </section>
     <div class="actions">
       <button id="undo" style="display:none">Undo</button>
       <button id="clearQuarter">Clear Quarter</button>
-      <button id="setOfficeLocation" type="button">Set office location</button>
-      <button id="checkOfficeLocation" type="button">Check my location</button>
       <button id="export">Export Data</button>
       <button id="import">Import Data</button>
       <button class="account-delete-icon" id="deleteAccountButton" type="button" title="Delete account" aria-label="Delete my account">🗑</button>
@@ -552,27 +560,6 @@ html,body{overflow-x:hidden}
   </div>
 </div>
 
-<div class="modal" id="officeLocationModal" role="dialog" aria-modal="true" aria-labelledby="officeLocationTitle">
-  <div class="modal-content">
-    <h2 id="officeLocationTitle">Set office location</h2>
-    <p class="location-settings-note">Enter the office coordinates and radius. Location is checked only while you tap “Check my location” or, if enabled, while the tracker is open. Your location is not stored.</p>
-    <div class="location-settings-form">
-      <label for="officeLatitude">Latitude</label>
-      <input type="number" id="officeLatitude" min="-90" max="90" step="any" placeholder="e.g. 12.9716">
-      <label for="officeLongitude">Longitude</label>
-      <input type="number" id="officeLongitude" min="-180" max="180" step="any" placeholder="e.g. 77.5946">
-      <label for="officeRadius">Radius (meters)</label>
-      <input type="number" id="officeRadius" min="10" max="5000" step="10" value="200">
-    </div>
-    <label class="location-auto-toggle"><input type="checkbox" id="autoOfficeMark"> Automatically mark today when I’m within the radius while the tracker is open</label>
-    <p class="auth-error" id="officeLocationError" aria-live="polite"></p>
-    <div class="modal-buttons">
-      <button class="cancel" id="cancelOfficeLocation" type="button">Cancel</button>
-      <button class="confirm" id="saveOfficeLocation" type="button">Save location</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal" id="installGuideModal" role="dialog" aria-modal="true" aria-labelledby="installGuideTitle">
   <div class="modal-content">
     <h2 id="installGuideTitle">Install Office Days Tracker</h2>
@@ -597,7 +584,7 @@ html,body{overflow-x:hidden}
 
 <input type="file" id="fileInput" accept=".json">
 <div class="toast" id="toast" role="status"></div>
-<div class="build-watermark">Build v26.10.02.3TEST</div>
+<div class="build-watermark">Build v26.10.03.4TEST</div>
 
 <script>
 firebase.initializeApp(firebaseConfig);
@@ -619,11 +606,13 @@ const KEY_TARGET="officeDaysTrackerTarget";
 const KEY_THEME="officeDaysTrackerTheme";
 const KEY_MONTHLY_STATE="officeDaysTrackerMonthlyExpanded";
 const KEY_PENDING_SYNC="officeDaysTrackerPendingSync";
-const KEY_OFFICE_LOCATION="officeDaysTrackerOfficeLocation";
-let officeLocation=null;
-try{officeLocation=JSON.parse(localStorage.getItem(KEY_OFFICE_LOCATION)||"null")}catch(error){officeLocation=null}
-const KEY_AUTO_OFFICE="officeDaysTrackerAutoOffice";
-let autoOfficeEnabled=localStorage.getItem(KEY_AUTO_OFFICE)==="true";
+const OFFICE_RADIUS_METERS=2000;
+const OFFICE_LOCATIONS=[
+  {name:"Bangalore",latitude:13.0480,longitude:77.6198},
+  {name:"Delhi",latitude:28.55189,longitude:77.32499},
+  {name:"Hyderabad",latitude:17.4411,longitude:78.3815},
+  {name:"Pune",latitude:18.5597,longitude:73.9574}
+];
 let officeLocationWatchId=null;
 let data=JSON.parse(localStorage.getItem(KEY_DATA)||"{}");
 let quarterTargets=JSON.parse(localStorage.getItem(KEY_TARGET)||"{}");
@@ -667,141 +656,62 @@ function setSaveStatus(message){
   $("saveStatus").textContent=message;
 }
 
-function openOfficeLocationSettings(){
-  $("officeLatitude").value=officeLocation?.latitude??"";
-  $("officeLongitude").value=officeLocation?.longitude??"";
-  $("officeRadius").value=officeLocation?.radius??200;
-  $("autoOfficeMark").checked=autoOfficeEnabled;
-  $("officeLocationError").textContent="";
-  $("officeLocationModal").classList.add("active");
+function setOfficeLocationStatus(message){
+  $("officeLocationStatus").textContent=message;
 }
 
-function closeOfficeLocationSettings(){
-  $("officeLocationModal").classList.remove("active");
+function officeDistanceMeters(lat1,lon1,lat2,lon2){
+  const radians=value=>value*Math.PI/180;
+  const dLat=radians(lat2-lat1),dLon=radians(lon2-lon1);
+  const a=Math.sin(dLat/2)**2+Math.cos(radians(lat1))*Math.cos(radians(lat2))*Math.sin(dLon/2)**2;
+  return 6371000*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-function saveOfficeLocationSettings(){
-  const latitude=Number($("officeLatitude").value);
-  const longitude=Number($("officeLongitude").value);
-  const radius=Number($("officeRadius").value);
-  if($("officeLatitude").value===""||!Number.isFinite(latitude)||latitude < -90||latitude > 90){
-    $("officeLocationError").textContent="Enter a valid latitude between -90 and 90.";
-    return;
-  }
-  if($("officeLongitude").value===""||!Number.isFinite(longitude)||longitude < -180||longitude > 180){
-    $("officeLocationError").textContent="Enter a valid longitude between -180 and 180.";
-    return;
-  }
-  if(!Number.isFinite(radius)||radius<10||radius>5000){
-    $("officeLocationError").textContent="Radius must be between 10 and 5000 meters.";
-    return;
-  }
-  officeLocation={latitude,longitude,radius};
-  localStorage.setItem(KEY_OFFICE_LOCATION,JSON.stringify(officeLocation));
-  autoOfficeEnabled=$("autoOfficeMark").checked;
-  localStorage.setItem(KEY_AUTO_OFFICE,autoOfficeEnabled?"true":"false");
-  if(autoOfficeEnabled)startOfficeLocationWatch();
-  else stopOfficeLocationWatch();
-  closeOfficeLocationSettings();
-  showToast(autoOfficeEnabled?"Office location saved; automatic marking is on while the tracker is open":"Office location saved on this device");
-}
-
-function distanceInMeters(latitude1,longitude1,latitude2,longitude2){
-  const radians=degrees=>degrees*Math.PI/180;
-  const earthRadius=6371000;
-  const deltaLatitude=radians(latitude2-latitude1);
-  const deltaLongitude=radians(longitude2-longitude1);
-  const a=Math.sin(deltaLatitude/2)**2+Math.cos(radians(latitude1))*Math.cos(radians(latitude2))*Math.sin(deltaLongitude/2)**2;
-  return earthRadius*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
-function stopOfficeLocationWatch(){
+function stopAutoOfficeMarking(){
   if(officeLocationWatchId!==null&&navigator.geolocation){
     navigator.geolocation.clearWatch(officeLocationWatchId);
     officeLocationWatchId=null;
   }
 }
 
-let lastOfficeLocationNoticeAt=0;
-function startOfficeLocationWatch(){
-  if(!autoOfficeEnabled||!officeLocation||!auth.currentUser||document.hidden||officeLocationWatchId!==null)return;
-  if(!window.isSecureContext){
-    showToast("Automatic location needs a secure HTTPS connection");
-    return;
-  }
+function startAutoOfficeMarking(){
+  stopAutoOfficeMarking();
+  if(!auth.currentUser)return;
   if(!navigator.geolocation){
-    showToast("This browser does not provide location access");
+    setOfficeLocationStatus("This browser does not support location access.");
     return;
   }
-  const options={enableHighAccuracy:true,timeout:60000,maximumAge:0};
-  const checkPosition=position=>{
-    if(!officeLocation||!auth.currentUser)return;
-    const distance=distanceInMeters(position.coords.latitude,position.coords.longitude,officeLocation.latitude,officeLocation.longitude);
-    if(distance>officeLocation.radius){
-      const now=Date.now();
-      if(now-lastOfficeLocationNoticeAt>30000){
-        lastOfficeLocationNoticeAt=now;
-        showToast(`Location found, but ${Math.round(distance)} m from office (radius: ${officeLocation.radius} m)`);
+  setOfficeLocationStatus("Checking your location automatically… Allow location access and keep the tracker open.");
+  officeLocationWatchId=navigator.geolocation.watchPosition(position=>{
+    if(!auth.currentUser)return;
+    const nearest=OFFICE_LOCATIONS.map(office=>({
+      ...office,
+      distance:Math.round(officeDistanceMeters(
+        position.coords.latitude,position.coords.longitude,
+        office.latitude,office.longitude
+      ))
+    })).sort((a,b)=>a.distance-b.distance)[0];
+    const today=key(new Date());
+    if(nearest.distance<=OFFICE_RADIUS_METERS){
+      if(!data[today]){
+        rememberData();
+        data[today]=true;
+        save();
+        render();
+        showToast(`Office day automatically marked near ${nearest.name}`);
       }
-      return;
+      setOfficeLocationStatus(`Within ${OFFICE_RADIUS_METERS.toLocaleString()} m of ${nearest.name} (${nearest.distance} m). Today is marked as an office day.`);
+    }else{
+      setOfficeLocationStatus(`Nearest office: ${nearest.name}, ${nearest.distance.toLocaleString()} m away. Marking radius: ${OFFICE_RADIUS_METERS.toLocaleString()} m.`);
     }
-    const today=key(new Date());
-    if(isOfficeDay(data[today]))return;
-    rememberData();
-    data[today]="office";
-    save();
-    render();
-    showToast("You’re within the office radius — today marked as an office day");
-  };
-  const handleError=error=>{
-    if(error.code===1){
-      stopOfficeLocationWatch();
-      showToast("Location permission was denied. Allow location access and enable automatic marking again.");
-      return;
-    }
-    const message=error.code===2?"Your location is temporarily unavailable":"Location check timed out; still waiting for a location fix";
-    showToast(`Automatic office marking: ${message}`);
-  };
-  officeLocationWatchId=navigator.geolocation.watchPosition(checkPosition,handleError,options);
-}
-
-function checkOfficeLocation(){
-  if(!officeLocation){
-    showToast("Set your office location and radius first");
-    openOfficeLocationSettings();
-    return;
-  }
-  if(!navigator.geolocation){
-    showToast("Location is not available in this browser");
-    return;
-  }
-  const button=$("checkOfficeLocation");
-  button.disabled=true;
-  button.textContent="Checking location…";
-  navigator.geolocation.getCurrentPosition(position=>{
-    button.disabled=false;
-    button.textContent="Check my location";
-    const distance=distanceInMeters(position.coords.latitude,position.coords.longitude,officeLocation.latitude,officeLocation.longitude);
-    if(distance>officeLocation.radius){
-      showToast(`Outside office radius (${Math.round(distance)} m away)`);
-      return;
-    }
-    const today=key(new Date());
-    if(isOfficeDay(data[today])){
-      showToast("Today is already marked as an office day");
-      return;
-    }
-    rememberData();
-    data[today]="office";
-    save();
-    render();
-    showToast("Location verified — today marked as an office day");
   },error=>{
-    button.disabled=false;
-    button.textContent="Check my location";
-    const message=error.code===1?"Location permission was denied":error.code===2?"Your location could not be determined":"Location check timed out";
-    showToast(`${message}. Check browser location access and try again.`);
-  },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+    const message=error.code===1
+      ? "Location permission was denied. Allow location access in your browser settings."
+      : error.code===3
+        ? "Waiting for a location fix; GPS may take a moment. The tracker will keep checking."
+        : "Unable to get your location. Check device location settings and keep the tracker open.";
+    setOfficeLocationStatus(message);
+  },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
 }
 
 function setAuthMode(mode){
@@ -872,7 +782,7 @@ function adminQuarterStats(savedData,year,quarterNumber){
   const [start,end]=quarterRange(year,quarterNumber);
   let marked=0;
   for(let date=new Date(start);date<=end;date.setDate(date.getDate()+1)){
-    if(isOfficeDay(savedData[key(date)]))marked++;
+    if(savedData[key(date)])marked++;
   }
   return marked;
 }
@@ -949,8 +859,8 @@ async function loadAdminDashboard(){
     const savedTargets=saved.quarterTargets&&typeof saved.quarterTargets==="object"?saved.quarterTargets:{};
     const legacyTarget=Number.isInteger(saved.quarterTarget)&&saved.quarterTarget>0?saved.quarterTarget:24;
     const targets=[1,2,3,4].map(q=>Number.isInteger(savedTargets[`${adminYear}-Q${q}`])&&savedTargets[`${adminYear}-Q${q}`]>0?savedTargets[`${adminYear}-Q${q}`]:legacyTarget);
-    const yearDays=Object.keys(savedData).filter(date=>isOfficeDay(savedData[date])&&date.startsWith(`${adminYear}-`)).length;
-    return {name:saved.name||"",mobile:saved.mobile||"Unknown",yearDays,days:Object.keys(savedData).filter(date=>isOfficeDay(savedData[date])).length,dates:Object.keys(savedData).filter(date=>isOfficeDay(savedData[date])&&date.startsWith(`${adminYear}-`)).sort(),targets,quarters:[1,2,3,4].map(q=>adminQuarterStats(savedData,adminYear,q)),updatedAt:saved.updatedAt};
+    const yearDays=Object.keys(savedData).filter(date=>savedData[date]&&date.startsWith(`${adminYear}-`)).length;
+    return {name:saved.name||"",mobile:saved.mobile||"Unknown",yearDays,days:Object.keys(savedData).filter(key=>savedData[key]).length,dates:Object.keys(savedData).filter(date=>savedData[date]&&date.startsWith(`${adminYear}-`)).sort(),targets,quarters:[1,2,3,4].map(q=>adminQuarterStats(savedData,adminYear,q)),updatedAt:saved.updatedAt};
   }).sort((a,b)=>a.mobile.localeCompare(b.mobile));
   renderAdminRows();
   if(selectedAdminDateMobile){
@@ -1214,13 +1124,6 @@ $("deleteAccountPassword").onkeydown=event=>{
 $("deleteAccountModal").onclick=event=>{
   if(event.target===$("deleteAccountModal"))closeDeleteAccountDialog();
 };
-$("setOfficeLocation").onclick=openOfficeLocationSettings;
-$("checkOfficeLocation").onclick=checkOfficeLocation;
-$("cancelOfficeLocation").onclick=closeOfficeLocationSettings;
-$("saveOfficeLocation").onclick=saveOfficeLocationSettings;
-$("officeLocationModal").onclick=event=>{
-  if(event.target===$("officeLocationModal"))closeOfficeLocationSettings();
-};
 $("logout").onclick=()=>auth.signOut();
 $("undo").onclick=undoLastChange;
 $("adminButton").onclick=showAdminDashboard;
@@ -1261,12 +1164,14 @@ $("adminYear").onchange=()=>{
 $("exportAdminAll").onclick=()=>exportAdminCsv(adminRows,`office-days-dashboard-${adminYear}.csv`);
 auth.onAuthStateChanged(async user=>{
   authStateResolved=true;
-  stopOfficeLocationWatch();
   $("authScreen").style.display=user?"none":"flex";
   $("appContent").style.display=user?"block":"none";
   $("adminButton").classList.remove("visible");
   adminMobiles=[];
-  if(!user)return;
+  if(!user){
+    stopAutoOfficeMarking();
+    return;
+  }
   const signedInMobile=(user.email||"").split("@")[0];
   try{
     await ensureTrackerProfile(user,signedInMobile);
@@ -1298,13 +1203,8 @@ auth.onAuthStateChanged(async user=>{
     console.error("Unable to load tracker data from Firebase:",error);
   }
   render();
+  startAutoOfficeMarking();
   showInstallGuide(user);
-  startOfficeLocationWatch();
-});
-
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden)stopOfficeLocationWatch();
-  else startOfficeLocationWatch();
 });
 
 if(isDarkMode) document.body.classList.add("dark-mode");
@@ -1366,10 +1266,8 @@ function key(d){
 }
 function quarter(m){return Math.floor(m/3)+1}
 function quarterRange(y,q){return [new Date(y,(q-1)*3,1),new Date(y,q*3,0)]}
-function isOfficeDay(value){return value===true||value==="office"}
-function isHomeDay(value){return value==="home"}
-function daysInQuarter(y,q){let [a,b]=quarterRange(y,q), n=0;for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1)) if(isOfficeDay(data[key(d)]))n++;return n}
-function daysInMonth(y,m){let d=new Date(y,m,1),e=new Date(y,m+1,0),n=0;for(;d<=e;d.setDate(d.getDate()+1))if(isOfficeDay(data[key(d)]))n++;return n}
+function daysInQuarter(y,q){let [a,b]=quarterRange(y,q), n=0;for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1)) if(data[key(d)])n++;return n}
+function daysInMonth(y,m){let d=new Date(y,m,1),e=new Date(y,m+1,0),n=0;for(;d<=e;d.setDate(d.getDate()+1))if(data[key(d)])n++;return n}
 
 function toggleMonthly(){
   isMonthlyExpanded=!isMonthlyExpanded;
@@ -1450,21 +1348,23 @@ function renderCalendar(){
   
   for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
     let k=key(d), e=document.createElement("div");
-    const status=isOfficeDay(data[k])?"office":"";
-    const statusLabel=status?"office day":"not marked";
-    e.className="day"+(d.getDay()==0||d.getDay()==6?" weekend ":"")+(status?` ${status} `:"")+(key(d)==key(new Date())?" today":"");
+    e.className="day"+(d.getDay()==0||d.getDay()==6?" weekend ":"")+(data[k]?" office ":"")+(key(d)==key(new Date())?" today":"");
     e.tabIndex=0;
     e.setAttribute("role","button");
-    e.setAttribute("aria-pressed",status?"true":"false");
-    e.setAttribute("aria-label",`${d.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"})}, ${statusLabel}`);
-    const officeIcon='<svg viewBox="0 0 24 24"><path d="M4 21V5l8-3v19M12 9h8v12M2 21h20"/><path d="M7 7h2m-2 4h2m-2 4h2m7-3h2m-2 4h2"/></svg>';
-    e.innerHTML='<div class="num">'+d.getDate()+'</div>'+(status?`<div class="tag" aria-hidden="true">${officeIcon}</div>`:'');
+    e.setAttribute("aria-pressed",data[k]?"true":"false");
+    e.setAttribute("aria-label",`${d.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"})}${data[k]?", office day":""}`);
+    e.innerHTML='<div class="num">'+d.getDate()+'</div>'+(data[k]?'<div class="tag" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V5l8-3v19M12 9h8v12M2 21h20"/><path d="M7 7h2m-2 4h2m-2 4h2m7-3h2m-2 4h2"/></svg></div>':'');
     const toggleDay=()=>{
-      rememberData();
-      if(status)delete data[k];
-      else data[k]="office";
-      save();
-      render();
+      const dateStr=d.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+      const isMarked=!!data[k];
+      const action=isMarked?"Mark as non-office day":"Mark as office day";
+      showModal("Confirm Date Selection",`${action}?`,()=>{
+        rememberData();
+        data[k]=!data[k];
+        if(!data[k])delete data[k];
+        save();
+        render();
+      });
     };
     e.onclick=toggleDay;
     e.onkeydown=event=>{
@@ -1500,7 +1400,7 @@ function render(){
   $("quarterTarget").textContent=currentTarget;
   $("remaining").textContent=Math.max(0,currentTarget-qcount);
   
-  let total=0;Object.keys(data).forEach(k=>{if(k.startsWith(y+"-")&&isOfficeDay(data[k]))total++});
+  let total=0;Object.keys(data).forEach(k=>{if(k.startsWith(y+"-"))total++});
   $("ydays").textContent=total;
   
   const monthlyGrid=$("monthlyGrid");
@@ -1588,14 +1488,14 @@ $("fileInput").onchange=(e)=>{
         const parsed=new Date(year,month-1,day);
         return parsed.getFullYear()===year&&parsed.getMonth()===month-1&&parsed.getDate()===day;
       };
-      const validDates=Object.keys(importData).filter(date=>isValidDateKey(date)&&(importData[date]===true||importData[date]==="office"));
+      const validDates=Object.keys(importData).filter(date=>isValidDateKey(date)&&importData[date]);
       if(typeof importData!=="object"||Array.isArray(importData)||validDates.length!==Object.keys(importData).length){
         alert("Invalid file format. Dates must use YYYY-MM-DD format.");
         return;
       }
       showModal("Import Data",`This will replace your current data with ${validDates.length} selected day(s). Continue?`,()=>{
         rememberData();
-        data=Object.fromEntries(validDates.map(date=>[date,importData[date]]));
+        data=Object.fromEntries(validDates.map(date=>[date,true]));
         quarterTargets=imported.quarterTargets||{};
         if(imported.quarterTarget)quarterTargets[targetKey(view.getFullYear(),quarter(view.getMonth()))]=importTarget;
         save();
@@ -1626,7 +1526,6 @@ document.addEventListener("keydown",(e)=>{
     closeModal();
     closeNameEditor();
     closeDeleteAccountDialog();
-    closeOfficeLocationSettings();
     dismissInstallGuide();
   }
   if(e.key==="Enter"&&editingTarget)confirmAction();
