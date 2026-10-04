@@ -492,11 +492,6 @@ html,body{overflow-x:hidden}
     </div>
     <div class="grid" id="calendar"></div>
     <div class="note">💡 Tap/click a date to mark or unmark an office day. Weekends are shown separately but can still be selected.</div>
-    <section class="office-location" aria-labelledby="officeLocationTitle">
-      <h3 id="officeLocationTitle">Automatic office-day marking</h3>
-      <p>Location is checked automatically while you are signed in. Today is marked when you are within 2,000 meters of any listed office.</p>
-      <div class="location-status" id="officeLocationStatus" role="status" aria-live="polite">Waiting for location access…</div>
-    </section>
     <div class="actions">
       <button id="undo" style="display:none">Undo</button>
       <button id="clearQuarter">Clear Quarter</button>
@@ -584,7 +579,7 @@ html,body{overflow-x:hidden}
 
 <input type="file" id="fileInput" accept=".json">
 <div class="toast" id="toast" role="status"></div>
-<div class="build-watermark">Build v26.10.03.4TEST</div>
+<div class="build-watermark">Build v26.10.03.2</div>
 
 <script>
 firebase.initializeApp(firebaseConfig);
@@ -657,7 +652,8 @@ function setSaveStatus(message){
 }
 
 function setOfficeLocationStatus(message){
-  $("officeLocationStatus").textContent=message;
+  const status=$("officeLocationStatus");
+  if(status)status.textContent=message;
 }
 
 function officeDistanceMeters(lat1,lon1,lat2,lon2){
