@@ -411,11 +411,14 @@ html,body{overflow-x:hidden}
   .admin-table td{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0;padding:10px 8px;border-bottom:1px solid #e2e8f0;white-space:normal;overflow-wrap:anywhere;font-size:12px}
   .admin-table td::before{content:attr(data-label);color:#64748b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.35px}
   .admin-table td.admin-select-cell{grid-column:1;grid-row:1;align-items:flex-start;justify-content:center}
-  .admin-table td.admin-user{grid-column:2;grid-row:1;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;color:#1e3a8a!important}
+  .admin-table td.admin-user{grid-column:2;grid-row:1;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:6px;color:#1e3a8a!important}
   .admin-table td.admin-user[data-label="Name"]::before{flex:0 0 100%}
+  .admin-table td.admin-user[data-label="Name"] > span{flex:1 1 140px;min-width:0;overflow-wrap:anywhere}
+  .admin-table td.admin-user[data-label="Name"] .admin-expand-toggle{flex:0 0 auto;max-width:100%;white-space:nowrap}
+  .admin-table td.admin-detail-cell.admin-user{grid-column:1/-1;grid-row:auto;flex-direction:column;align-items:flex-start;justify-content:center;overflow-wrap:anywhere}
   .admin-table td.admin-marked[data-label^="Days in"]{grid-column:1/-1}
-  .admin-table td.admin-detail-cell{display:none}
-  .admin-table tr.expanded td.admin-detail-cell{display:flex;grid-column:1/-1;align-items:flex-start}
+  .admin-table tbody tr:not(.expanded) td.admin-detail-cell{display:none!important}
+  .admin-table tbody tr.expanded td.admin-detail-cell{display:flex!important;grid-column:1/-1;align-items:flex-start}
   .admin-table td.admin-quarter{align-items:flex-start}
   .admin-expand-toggle{display:inline-flex;flex:0 0 auto;border:0;border-radius:7px;padding:6px 8px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:700;cursor:pointer}
   .admin-table td:last-child{align-items:flex-start}
@@ -1173,19 +1176,13 @@ $("adminRows").onclick=e=>{
   if(expandButton){
     const row=expandButton.closest("tr");
     const mobile=row.querySelector(".admin-select").dataset.mobile;
-    const isExpanded=expandedAdminMobiles.has(mobile);
-    if(isExpanded){
+    if(expandedAdminMobiles.has(mobile)){
       expandedAdminMobiles.delete(mobile);
-      row.classList.remove("expanded");
-      row.querySelectorAll("td.admin-detail-cell").forEach(cell=>cell.style.display="none");
-      if(selectedAdminDateMobile===mobile)renderAdminDateDetails(null);
+      if(selectedAdminDateMobile===mobile)selectedAdminDateMobile="";
     }else{
       expandedAdminMobiles.add(mobile);
-      row.classList.add("expanded");
-      row.querySelectorAll("td.admin-detail-cell").forEach(cell=>cell.style.display="flex");
     }
-    expandButton.setAttribute("aria-expanded",String(!isExpanded));
-    expandButton.textContent=isExpanded?"More details +":"Hide details −";
+    renderAdminRows();
     return;
   }
   if(e.target.classList.contains("admin-select")){
