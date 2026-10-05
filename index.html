@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="app-icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="app-icon.svg">
-<title>Office Days Tracker - Voya</title>
+<title>Office Days Tracker</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#172033;min-height:100vh;transition:background 0.3s}
@@ -221,11 +221,18 @@ body.dark-mode .admin-table td{color:#e0e7ff;border-bottom-color:#4a5568}
 .admin-date-details p{margin:0 0 14px;color:#64748b;font-size:13px}
 .admin-date-list{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}
 .admin-date-list li{padding:7px 10px;border-radius:8px;background:white;border:1px solid #bfdbfe;color:#1e40af;font-size:12px;font-weight:700}
+.admin-inline-dates{display:none;flex:0 0 100%;width:100%;margin-top:8px;padding:10px;border-radius:9px;background:#f8fafc;border:1px solid #dbeafe;color:#334155;font-size:12px;line-height:1.5}
+.admin-inline-dates.visible{display:grid;gap:6px}
+.admin-inline-dates strong{color:#1e3a8a}
+.admin-inline-dates .admin-date-list{margin-top:2px}
 .admin-view-dates{border:0;border-radius:7px;padding:7px 9px;background:#7c3aed;color:white;font-size:11px;font-weight:700;cursor:pointer}
+.admin-expand-toggle{display:none}
 body.dark-mode .admin-date-details{background:#2d3748;border-color:#4a5568}
 body.dark-mode .admin-date-details h3{color:#c4b5fd}
 body.dark-mode .admin-date-details p{color:#cbd5e1}
 body.dark-mode .admin-date-list li{background:#1a2332;border-color:#4a5568;color:#bfdbfe}
+body.dark-mode .admin-inline-dates{background:#202c3d;border-color:#4a5568;color:#cbd5e1}
+body.dark-mode .admin-inline-dates strong{color:#c4b5fd}
 /* Colorful, full-page admin dashboard */
 .admin-screen{padding:32px;background:radial-gradient(circle at 8% 12%,rgba(14,165,233,.28),transparent 28%),radial-gradient(circle at 92% 8%,rgba(168,85,247,.28),transparent 30%),linear-gradient(135deg,#eef2ff,#ecfeff 52%,#fdf2f8)}
 .admin-panel{max-width:1500px}
@@ -394,6 +401,31 @@ html,body{overflow-x:hidden}
   .monthly-toggle{width:16px;height:16px;font-size:10px}
 }
 
+/* Use compact user cards on phones instead of forcing the wide admin table to scroll. */
+@media(max-width:600px){
+  .admin-table-card{overflow-x:hidden}
+  .admin-table{display:block;width:100%;min-width:0;table-layout:fixed}
+  .admin-table thead{display:none}
+  .admin-table tbody{display:grid;gap:12px;width:100%}
+  .admin-table tbody tr{display:grid;grid-template-columns:42px minmax(0,1fr);width:100%;border:1px solid #dbeafe;border-radius:12px;background:#fff;overflow:hidden}
+  .admin-table td{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0;padding:10px 8px;border-bottom:1px solid #e2e8f0;white-space:normal;overflow-wrap:anywhere;font-size:12px}
+  .admin-table td::before{content:attr(data-label);color:#64748b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.35px}
+  .admin-table td.admin-select-cell{grid-column:1;grid-row:1;align-items:flex-start;justify-content:center}
+  .admin-table td.admin-user{grid-column:2;grid-row:1;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;color:#1e3a8a!important}
+  .admin-table td.admin-user[data-label="Name"]::before{flex:0 0 100%}
+  .admin-table td.admin-marked[data-label^="Days in"]{grid-column:1/-1}
+  .admin-table td.admin-detail-cell{display:none}
+  .admin-table tr.expanded td.admin-detail-cell{display:flex;grid-column:1/-1;align-items:flex-start}
+  .admin-table td.admin-quarter{align-items:flex-start}
+  .admin-expand-toggle{display:inline-flex;flex:0 0 auto;border:0;border-radius:7px;padding:6px 8px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:700;cursor:pointer}
+  .admin-table td:last-child{align-items:flex-start}
+  .admin-table .admin-progress{max-width:100%}
+  .admin-table tbody tr:hover{background:#fff}
+  body.dark-mode .admin-table tbody tr{background:#1a2332;border-color:#4a5568}
+  body.dark-mode .admin-table td{border-bottom-color:#4a5568}
+  body.dark-mode .admin-table td::before{color:#94a3b8}
+  body.dark-mode .admin-table tbody tr:hover{background:#1a2332}
+}
 
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -513,11 +545,6 @@ html,body{overflow-x:hidden}
       <div class="admin-table-header"><h3 id="adminActivityTitle">Current-year user activity</h3><div class="admin-export-actions"><select class="admin-search" id="adminYear" aria-label="Select dashboard year"></select><input class="admin-search" id="adminSearch" type="search" placeholder="Search by name or mobile number" aria-label="Search users by name or mobile number"><button class="admin-export" id="selectAllAdmin">Select visible</button><button class="admin-export" id="clearAdminSelection">Clear selection</button><button class="admin-export" id="exportAdminSelected">Export selected users</button><button class="admin-export" id="exportAdminAll">Export full dashboard</button></div></div>
       <table class="admin-table"><thead><tr><th class="admin-select-cell" aria-label="Select users"></th><th>Name</th><th>Mobile number</th><th>Days in selected year</th><th>Q1 target / marked</th><th>Q2 target / marked</th><th>Q3 target / marked</th><th>Q4 target / marked</th><th>Last updated</th><th>Dates</th></tr></thead><tbody id="adminRows"></tbody></table>
       <div class="admin-empty" id="adminEmpty" style="display:none">No matching users found.</div>
-      <section class="admin-date-details" id="adminDateDetails" aria-live="polite">
-        <h3 id="adminDateTitle">Selected user dates</h3>
-        <p id="adminDateSummary"></p>
-        <ul class="admin-date-list" id="adminDateList"></ul>
-      </section>
     </div>
   </div>
 </div>
@@ -601,7 +628,7 @@ const KEY_TARGET="officeDaysTrackerTarget";
 const KEY_THEME="officeDaysTrackerTheme";
 const KEY_MONTHLY_STATE="officeDaysTrackerMonthlyExpanded";
 const KEY_PENDING_SYNC="officeDaysTrackerPendingSync";
-const OFFICE_RADIUS_METERS=2000;
+const OFFICE_RADIUS_METERS=500;
 const OFFICE_LOCATIONS=[
   {name:"Bangalore",latitude:13.0450,longitude:77.6188},
   {name:"Delhi",latitude:28.55189,longitude:77.32499},
@@ -624,6 +651,7 @@ let previousData=null;
 let toastTimer=null;
 let selectedAdminDateMobile="";
 const selectedAdminMobiles=new Set();
+const expandedAdminMobiles=new Set();
 
 function rememberData(){
   previousData={...data};
@@ -784,31 +812,37 @@ function adminQuarterStats(savedData,year,quarterNumber){
   return marked;
 }
 
-function adminCell(target,marked){
+function adminCell(target,marked,label){
   const percent=target?Math.min(100,Math.round(marked/target*100)):0;
-  return `<td class="admin-quarter"><span class="admin-marked">${target} target / ${marked} marked</span><span class="admin-progress"><i style="width:${percent}%"></i></span></td>`;
+  return `<td class="admin-quarter admin-detail-cell" data-label="${label}"><span class="admin-marked">${target} target / ${marked} marked</span><span class="admin-progress"><i style="width:${percent}%"></i></span></td>`;
 }
 
 function renderAdminRows(){
   $("adminActivityTitle").textContent=`${adminYear} User In Office Details`;
   const search=$("adminSearch").value.trim().toLowerCase();
   const rows=adminRows.filter(row=>`${row.name} ${row.mobile}`.toLowerCase().includes(search));
-  $("adminRows").innerHTML=rows.map(row=>`<tr><td class="admin-select-cell"><input class="admin-select" type="checkbox" data-mobile="${escapeHtml(row.mobile)}" aria-label="Select ${escapeHtml(row.name||row.mobile)} for export" ${selectedAdminMobiles.has(row.mobile)?"checked":""}></td><td class="admin-user">${escapeHtml(row.name||"—")}</td><td class="admin-user">${escapeHtml(row.mobile)}</td><td class="admin-marked">${row.yearDays}</td>${adminCell(row.targets[0],row.quarters[0])}${adminCell(row.targets[1],row.quarters[1])}${adminCell(row.targets[2],row.quarters[2])}${adminCell(row.targets[3],row.quarters[3])}<td>${escapeHtml(formatAdminDate(row.updatedAt))}</td><td><button class="admin-view-dates" data-view-mobile="${escapeHtml(row.mobile)}">View dates</button></td></tr>`).join("");
+  $("adminRows").innerHTML=rows.map(row=>`<tr class="${expandedAdminMobiles.has(row.mobile)?"expanded":""}"><td class="admin-select-cell" data-label="Select"><input class="admin-select" type="checkbox" data-mobile="${escapeHtml(row.mobile)}" aria-label="Select ${escapeHtml(row.name||row.mobile)} for export" ${selectedAdminMobiles.has(row.mobile)?"checked":""}></td><td class="admin-user" data-label="Name"><span>${escapeHtml(row.name||"—")}</span><button class="admin-expand-toggle" type="button" aria-expanded="${expandedAdminMobiles.has(row.mobile)}" aria-label="Toggle details for ${escapeHtml(row.name||row.mobile)}">${expandedAdminMobiles.has(row.mobile)?"Hide details −":"More details +"}</button><div class="admin-inline-dates" data-dates-mobile="${escapeHtml(row.mobile)}"></div></td><td class="admin-user admin-detail-cell" data-label="Mobile number">${escapeHtml(row.mobile)}</td><td class="admin-marked" data-label="Days in ${adminYear}">${row.yearDays}</td>${adminCell(row.targets[0],row.quarters[0],"Q1")}${adminCell(row.targets[1],row.quarters[1],"Q2")}${adminCell(row.targets[2],row.quarters[2],"Q3")}${adminCell(row.targets[3],row.quarters[3],"Q4")}<td class="admin-detail-cell" data-label="Last updated">${escapeHtml(formatAdminDate(row.updatedAt))}</td><td class="admin-detail-cell" data-label="Office dates"><button class="admin-view-dates" data-view-mobile="${escapeHtml(row.mobile)}">View dates</button></td></tr>`).join("");
   $("adminEmpty").style.display=rows.length?"none":"block";
+  if(selectedAdminDateMobile){
+    const selectedRow=rows.find(row=>row.mobile===selectedAdminDateMobile);
+    if(selectedRow)renderAdminDateDetails(selectedRow);
+    else renderAdminDateDetails(null);
+  }
 }
 
 function renderAdminDateDetails(row){
-  const details=$("adminDateDetails");
-  if(!row){
+  document.querySelectorAll(".admin-inline-dates").forEach(details=>{
     details.classList.remove("visible");
+    details.innerHTML="";
+  });
+  if(!row){
+    selectedAdminDateMobile="";
     return;
   }
   selectedAdminDateMobile=row.mobile;
-  $("adminDateTitle").textContent=`${row.name||row.mobile} — ${adminYear} office dates`;
-  $("adminDateSummary").textContent=`${row.dates.length} office day${row.dates.length===1?"":"s"} marked in ${adminYear}`;
-  $("adminDateList").innerHTML=row.dates.length
-    ? row.dates.map(date=>`<li>${escapeHtml(new Date(`${date}T00:00:00`).toLocaleDateString(undefined,{weekday:"short",year:"numeric",month:"short",day:"numeric"}))}</li>`).join("")
-    : "<li>No office dates marked</li>";
+  const details=[...document.querySelectorAll(".admin-inline-dates")].find(item=>item.dataset.datesMobile===row.mobile);
+  if(!details)return;
+  details.innerHTML=`<strong>${escapeHtml(row.name||row.mobile)} — ${adminYear} office dates</strong><span>${row.dates.length} office day${row.dates.length===1?"":"s"} marked</span><ul class="admin-date-list">${row.dates.length?row.dates.map(date=>`<li>${escapeHtml(new Date(`${date}T00:00:00`).toLocaleDateString(undefined,{weekday:"short",year:"numeric",month:"short",day:"numeric"}))}</li>`).join(""):"<li>No office dates marked</li>"}</ul>`;
   details.classList.add("visible");
 }
 
@@ -1135,6 +1169,25 @@ $("clearAdminSelection").onclick=()=>{
   renderAdminRows();
 };
 $("adminRows").onclick=e=>{
+  const expandButton=e.target.closest(".admin-expand-toggle");
+  if(expandButton){
+    const row=expandButton.closest("tr");
+    const mobile=row.querySelector(".admin-select").dataset.mobile;
+    const isExpanded=expandedAdminMobiles.has(mobile);
+    if(isExpanded){
+      expandedAdminMobiles.delete(mobile);
+      row.classList.remove("expanded");
+      row.querySelectorAll("td.admin-detail-cell").forEach(cell=>cell.style.display="none");
+      if(selectedAdminDateMobile===mobile)renderAdminDateDetails(null);
+    }else{
+      expandedAdminMobiles.add(mobile);
+      row.classList.add("expanded");
+      row.querySelectorAll("td.admin-detail-cell").forEach(cell=>cell.style.display="flex");
+    }
+    expandButton.setAttribute("aria-expanded",String(!isExpanded));
+    expandButton.textContent=isExpanded?"More details +":"Hide details −";
+    return;
+  }
   if(e.target.classList.contains("admin-select")){
     const mobile=e.target.dataset.mobile;
     if(e.target.checked)selectedAdminMobiles.add(mobile);
@@ -1143,7 +1196,7 @@ $("adminRows").onclick=e=>{
   }
   if(e.target.classList.contains("admin-view-dates")){
     const row=adminRows.find(item=>item.mobile===e.target.dataset.viewMobile);
-    renderAdminDateDetails(row);
+    renderAdminDateDetails(selectedAdminDateMobile===row?.mobile?null:row);
   }
 };
 $("closeAdmin").onclick=hideAdminDashboard;
