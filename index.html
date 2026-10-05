@@ -546,7 +546,7 @@ html,body{overflow-x:hidden}
       <button class="admin-close" id="closeAdmin">Back to tracker</button>
     </div>
     <div class="admin-table-card">
-      <div class="admin-table-header"><h3 id="adminActivityTitle">Current-year user activity</h3><div class="admin-export-actions"><select class="admin-search" id="adminYear" aria-label="Select dashboard year"></select><input class="admin-search" id="adminSearch" type="search" placeholder="Search by name or mobile number" aria-label="Search users by name or mobile number"><button class="admin-export" id="selectAllAdmin">Select visible</button><button class="admin-export" id="clearAdminSelection">Clear selection</button><button class="admin-export" id="exportAdminSelected">Export selected users</button><button class="admin-export" id="exportAdminAll">Export full dashboard</button></div></div>
+      <div class="admin-table-header"><h3 id="adminActivityTitle">Current-year user activity</h3><div class="admin-export-actions"><select class="admin-search" id="adminYear" aria-label="Select dashboard year"></select><input class="admin-search" id="adminSearch" type="search" placeholder="Search by name or mobile number" aria-label="Search users by name or mobile number"><button class="admin-export" id="selectAllAdmin">Select All</button><button class="admin-export" id="clearAdminSelection">Clear Selection</button><button class="admin-export" id="exportAdminAll">Export Full Dashboard</button><button class="admin-export" id="exportAdminSelected">Export Selected Users</button></div></div>
       <table class="admin-table"><thead><tr><th class="admin-select-cell" aria-label="Select users"></th><th>Name</th><th>Mobile number</th><th>Days in selected year</th><th>Q1 target / marked</th><th>Q2 target / marked</th><th>Q3 target / marked</th><th>Q4 target / marked</th><th>Last updated</th><th>Dates</th></tr></thead><tbody id="adminRows"></tbody></table>
       <div class="admin-empty" id="adminEmpty" style="display:none">No matching users found.</div>
     </div>
@@ -850,26 +850,27 @@ function renderAdminDateDetails(row){
   details.classList.add("visible");
 }
 
-function csvValue(value){
-  return `"${String(value??"").replace(/"/g,'""')}"`;
-}
-
-function exportAdminCsv(rows,filename){
+function exportAdminJson(rows,filename){
   if(!rows.length){
     alert("No user data is available to export.");
     return;
   }
-  const year=adminYear;
-  const header=["Name","Mobile number",`Days in ${year}`,"Q1 target","Q1 marked","Q2 target","Q2 marked","Q3 target","Q3 marked","Q4 target","Q4 marked","Last updated"];
-  const lines=[header, ...rows.map(row=>[
-    row.name,row.mobile,row.yearDays,
-    row.targets[0],row.quarters[0],
-    row.targets[1],row.quarters[1],
-    row.targets[2],row.quarters[2],
-    row.targets[3],row.quarters[3],
-    formatAdminDate(row.updatedAt)
-  ])].map(line=>line.map(csvValue).join(","));
-  const blob=new Blob([lines.join("\\r\\n")],{type:"text/csv;charset=utf-8"});
+  const exportData={
+    year:adminYear,
+    users:rows.map(row=>({
+      name:row.name||"",
+      mobile:row.mobile,
+      daysInYear:row.yearDays,
+      quarters:[1,2,3,4].map((quarterNumber,index)=>({
+        quarterName:`Q${quarterNumber}`,
+        target:row.targets[index],
+        marked:row.quarterDates[index].length,
+        dates:row.quarterDates[index]
+      })),
+      lastUpdated:formatAdminDate(row.updatedAt)
+    }))
+  };
+  const blob=new Blob([JSON.stringify(exportData,null,2)],{type:"application/json;charset=utf-8"});
   const link=document.createElement("a");
   link.href=URL.createObjectURL(blob);
   link.download=filename;
@@ -883,7 +884,7 @@ function exportSelectedAdminUsers(){
     alert("Select at least one user to export.");
     return;
   }
-  exportAdminCsv(rows,`office-days-selected-users-${adminYear}.csv`);
+  exportAdminJson(rows,`office-days-selected-users-${adminYear}.json`);
 }
 
 async function loadAdminDashboard(){
@@ -894,8 +895,16 @@ async function loadAdminDashboard(){
     const savedTargets=saved.quarterTargets&&typeof saved.quarterTargets==="object"?saved.quarterTargets:{};
     const legacyTarget=Number.isInteger(saved.quarterTarget)&&saved.quarterTarget>0?saved.quarterTarget:24;
     const targets=[1,2,3,4].map(q=>Number.isInteger(savedTargets[`${adminYear}-Q${q}`])&&savedTargets[`${adminYear}-Q${q}`]>0?savedTargets[`${adminYear}-Q${q}`]:legacyTarget);
-    const yearDays=Object.keys(savedData).filter(date=>savedData[date]&&date.startsWith(`${adminYear}-`)).length;
-    return {name:saved.name||"",mobile:saved.mobile||"Unknown",yearDays,days:Object.keys(savedData).filter(key=>savedData[key]).length,dates:Object.keys(savedData).filter(date=>savedData[date]&&date.startsWith(`${adminYear}-`)).sort(),targets,quarters:[1,2,3,4].map(q=>adminQuarterStats(savedData,adminYear,q)),updatedAt:saved.updatedAt};
+    const dates=Object.keys(savedData).filter(date=>savedData[date]&&date.startsWith(`${adminYear}-`)).sort();
+    const quarterDates=[1,2,3,4].map(quarterNumber=>{
+      const [start,end]=quarterRange(adminYear,quarterNumber);
+      return dates.filter(date=>{
+        const markedDate=new Date(`${date}T00:00:00`);
+        return markedDate>=start&&markedDate<=end;
+      });
+    });
+    const yearDays=dates.length;
+    return {name:saved.name||"",mobile:saved.mobile||"Unknown",yearDays,days:Object.keys(savedData).filter(key=>savedData[key]).length,dates,quarterDates,targets,quarters:quarterDates.map(datesInQuarter=>datesInQuarter.length),updatedAt:saved.updatedAt};
   }).sort((a,b)=>a.mobile.localeCompare(b.mobile));
   renderAdminRows();
   if(selectedAdminDateMobile){
@@ -1209,7 +1218,7 @@ $("adminYear").onchange=()=>{
     $("adminEmpty").style.display="block";
   });
 };
-$("exportAdminAll").onclick=()=>exportAdminCsv(adminRows,`office-days-dashboard-${adminYear}.csv`);
+$("exportAdminAll").onclick=()=>exportAdminJson(adminRows,`office-days-dashboard-${adminYear}.json`);
 auth.onAuthStateChanged(async user=>{
   authStateResolved=true;
   $("authScreen").style.display=user?"none":"flex";
