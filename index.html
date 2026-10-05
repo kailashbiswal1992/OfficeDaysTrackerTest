@@ -427,7 +427,7 @@ html,body{overflow-x:hidden}
   <div class="header">
     <div class="logo-section">
       <div class="title-group">
-        <h1>Office Days Tracker - Beta Version</h1>
+        <h1>Office Days Tracker</h1>
         <p>Powered by KCB</p>
         <div class="welcome-row"><div class="welcome-message" id="welcomeMessage" aria-live="polite"></div><button class="edit-name-button" id="editNameButton" type="button" aria-label="Edit name" title="Edit name">✎</button></div>
         <div class="save-status" id="saveStatus" aria-live="polite"></div>
@@ -579,7 +579,7 @@ html,body{overflow-x:hidden}
 
 <input type="file" id="fileInput" accept=".json">
 <div class="toast" id="toast" role="status"></div>
-<div class="build-watermark">Build v26.10.03.2</div>
+<div class="build-watermark">Build v26.10.05.1</div>
 
 <script>
 firebase.initializeApp(firebaseConfig);
@@ -603,12 +603,13 @@ const KEY_MONTHLY_STATE="officeDaysTrackerMonthlyExpanded";
 const KEY_PENDING_SYNC="officeDaysTrackerPendingSync";
 const OFFICE_RADIUS_METERS=2000;
 const OFFICE_LOCATIONS=[
-  {name:"Bangalore",latitude:13.0480,longitude:77.6198},
+  {name:"Bangalore",latitude:13.0450,longitude:77.6188},
   {name:"Delhi",latitude:28.55189,longitude:77.32499},
   {name:"Hyderabad",latitude:17.4411,longitude:78.3815},
-  {name:"Pune",latitude:18.5597,longitude:73.9574}
+  {name:"Pune",latitude:18.5599,longitude:73.9580}
 ];
 let officeLocationWatchId=null;
+let officeLocationRetryTimer=null;
 let data=JSON.parse(localStorage.getItem(KEY_DATA)||"{}");
 let quarterTargets=JSON.parse(localStorage.getItem(KEY_TARGET)||"{}");
 if(!quarterTargets||typeof quarterTargets!=="object"||Array.isArray(quarterTargets))quarterTargets={};
@@ -651,11 +652,6 @@ function setSaveStatus(message){
   $("saveStatus").textContent=message;
 }
 
-function setOfficeLocationStatus(message){
-  const status=$("officeLocationStatus");
-  if(status)status.textContent=message;
-}
-
 function officeDistanceMeters(lat1,lon1,lat2,lon2){
   const radians=value=>value*Math.PI/180;
   const dLat=radians(lat2-lat1),dLon=radians(lon2-lon1);
@@ -663,52 +659,57 @@ function officeDistanceMeters(lat1,lon1,lat2,lon2){
   return 6371000*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
+function checkOfficePosition(position){
+  if(!auth.currentUser)return;
+  const nearest=OFFICE_LOCATIONS.map(office=>({
+    ...office,
+    distance:officeDistanceMeters(
+      position.coords.latitude,position.coords.longitude,
+      office.latitude,office.longitude
+    )
+  })).sort((a,b)=>a.distance-b.distance)[0];
+  const today=key(new Date());
+  if(nearest.distance<=OFFICE_RADIUS_METERS&&!data[today]){
+    rememberData();
+    data[today]=true;
+    save();
+    render();
+    showToast(`Office day automatically marked near ${nearest.name}`);
+  }
+}
+
+function requestOfficeLocation(){
+  if(!auth.currentUser||!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(checkOfficePosition,error=>{
+    console.warn("Unable to get a fresh office location:",error.message);
+  },{enableHighAccuracy:true,timeout:60000,maximumAge:0});
+}
+
 function stopAutoOfficeMarking(){
   if(officeLocationWatchId!==null&&navigator.geolocation){
     navigator.geolocation.clearWatch(officeLocationWatchId);
     officeLocationWatchId=null;
   }
+  if(officeLocationRetryTimer!==null){
+    clearInterval(officeLocationRetryTimer);
+    officeLocationRetryTimer=null;
+  }
 }
 
 function startAutoOfficeMarking(){
   stopAutoOfficeMarking();
-  if(!auth.currentUser)return;
-  if(!navigator.geolocation){
-    setOfficeLocationStatus("This browser does not support location access.");
-    return;
-  }
-  setOfficeLocationStatus("Checking your location automatically… Allow location access and keep the tracker open.");
-  officeLocationWatchId=navigator.geolocation.watchPosition(position=>{
-    if(!auth.currentUser)return;
-    const nearest=OFFICE_LOCATIONS.map(office=>({
-      ...office,
-      distance:Math.round(officeDistanceMeters(
-        position.coords.latitude,position.coords.longitude,
-        office.latitude,office.longitude
-      ))
-    })).sort((a,b)=>a.distance-b.distance)[0];
-    const today=key(new Date());
-    if(nearest.distance<=OFFICE_RADIUS_METERS){
-      if(!data[today]){
-        rememberData();
-        data[today]=true;
-        save();
-        render();
-        showToast(`Office day automatically marked near ${nearest.name}`);
-      }
-      setOfficeLocationStatus(`Within ${OFFICE_RADIUS_METERS.toLocaleString()} m of ${nearest.name} (${nearest.distance} m). Today is marked as an office day.`);
-    }else{
-      setOfficeLocationStatus(`Nearest office: ${nearest.name}, ${nearest.distance.toLocaleString()} m away. Marking radius: ${OFFICE_RADIUS_METERS.toLocaleString()} m.`);
-    }
-  },error=>{
-    const message=error.code===1
-      ? "Location permission was denied. Allow location access in your browser settings."
-      : error.code===3
-        ? "Waiting for a location fix; GPS may take a moment. The tracker will keep checking."
-        : "Unable to get your location. Check device location settings and keep the tracker open.";
-    setOfficeLocationStatus(message);
-  },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+  if(!auth.currentUser||!navigator.geolocation)return;
+  officeLocationWatchId=navigator.geolocation.watchPosition(checkOfficePosition,error=>{
+    console.warn("Office location watch error:",error.message);
+  },{enableHighAccuracy:true,timeout:60000,maximumAge:0});
+  requestOfficeLocation();
+  officeLocationRetryTimer=setInterval(requestOfficeLocation,120000);
 }
+
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden)requestOfficeLocation();
+});
+window.addEventListener("focus",requestOfficeLocation);
 
 function setAuthMode(mode){
   authMode=mode;
